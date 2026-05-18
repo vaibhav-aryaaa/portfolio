@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ArrowRight, Info, Briefcase, Code2, Smile, UserPlus, User, FileText, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { projectsData, type Project } from './data/projects';
 
 type ViewState = 'landing' | 'chat';
 
@@ -218,8 +219,9 @@ function LandingPrompt({ icon, label, onClick }: { icon: React.ReactNode, label:
   );
 }
 
-function ChatView({ history, activeIndex, setActiveIndex, onQuery, isTyping }: { history: ChatMessage[], activeIndex: number, setActiveIndex: any, onQuery: any, isTyping: boolean }) {
+function ChatView({ history, activeIndex, onQuery, isTyping }: { history: ChatMessage[], activeIndex: number, setActiveIndex: any, onQuery: any, isTyping: boolean }) {
   const [input, setInput] = useState('');
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const activeMessage = history[activeIndex];
 
   const handleSubmit = () => {
@@ -274,6 +276,7 @@ function ChatView({ history, activeIndex, setActiveIndex, onQuery, isTyping }: {
               className="w-full flex flex-col"
             >
               {activeMessage?.type === 'me' && <MeProfile />}
+              {activeMessage?.type === 'projects' && <ProjectsCarousel onSelectProject={setSelectedProject} />}
 
               {activeMessage?.ai_text ? (
                 <div className="w-full flex justify-end mb-6">
@@ -282,16 +285,18 @@ function ChatView({ history, activeIndex, setActiveIndex, onQuery, isTyping }: {
                   </div>
                 </div>
               ) : (
-                <div className="w-full flex flex-col items-center">
-                  <div className="w-full text-left mb-6">
-                    <h2 className="text-3xl font-bold text-slate-800 tracking-tight">{activeMessage?.title}</h2>
+                activeMessage?.type !== 'me' && activeMessage?.type !== 'projects' && (
+                  <div className="w-full flex flex-col items-center">
+                    <div className="w-full text-left mb-6">
+                      <h2 className="text-3xl font-bold text-slate-800 tracking-tight">{activeMessage?.title}</h2>
+                    </div>
+                    
+                    <div className="w-full h-[22rem] bg-slate-50/50 rounded-[2rem] border border-slate-200 flex flex-col items-center justify-center text-slate-500 shadow-sm mb-8">
+                       <Code2 className="w-8 h-8 mb-2 opacity-50" />
+                       <span>[ Dynamic &lt;{activeMessage?.type} /&gt; renders here ]</span>
+                    </div>
                   </div>
-                  
-                  <div className="w-full h-[22rem] bg-slate-50/50 rounded-[2rem] border border-slate-200 flex flex-col items-center justify-center text-slate-500 shadow-sm mb-8">
-                     <Code2 className="w-8 h-8 mb-2 opacity-50" />
-                     <span>[ Dynamic &lt;{activeMessage?.type} /&gt; renders here ]</span>
-                  </div>
-                </div>
+                )
               )}
             </motion.div>
           )}
@@ -324,6 +329,8 @@ function ChatView({ history, activeIndex, setActiveIndex, onQuery, isTyping }: {
           </button>
         </div>
       </div>
+
+      <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
     </motion.div>
   );
 }
@@ -434,5 +441,146 @@ function MeProfile() {
         </div>
       </div>
     </div>
+  );
+}
+
+function ProjectsCarousel({ onSelectProject }: { onSelectProject: (p: Project) => void }) {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollTo = direction === 'left' ? scrollLeft - clientWidth * 0.8 : scrollLeft + clientWidth * 0.8;
+      scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div className="w-full flex flex-col items-center mb-10 relative">
+      <div className="w-full text-left mb-6">
+        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">My Projects</h2>
+      </div>
+      
+      {/* Carousel Container */}
+      <div 
+        ref={scrollRef}
+        className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pt-4 pb-6 -mx-4 px-4 sm:mx-0 sm:px-0"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {projectsData.map((project) => (
+          <div 
+            key={project.id}
+            onClick={() => onSelectProject(project)}
+            className="shrink-0 w-72 h-96 bg-slate-900 rounded-[2.5rem] p-8 flex flex-col relative overflow-hidden cursor-pointer group snap-center shadow-lg transition-all hover:shadow-xl hover:-translate-y-2"
+            style={{ isolation: 'isolate' }}
+          >
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0 z-0">
+              <img src={project.thumbnail} alt={project.title} className="w-full h-full object-cover opacity-50 group-hover:opacity-70 group-hover:scale-110 transition-all duration-700 ease-out" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
+            </div>
+            
+            {/* Content */}
+            <div className="relative z-10 flex flex-col h-full">
+              <p className="text-white/80 text-sm font-medium mb-1 tracking-wide">{project.category}</p>
+              <h3 className="text-white text-3xl font-bold tracking-tight">{project.title}</h3>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Navigation Arrows */}
+      <div className="flex w-full items-center justify-end gap-3 mt-2 pr-4 sm:pr-0">
+        <button onClick={() => scroll('left')} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors shadow-sm">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <button onClick={() => scroll('right')} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors shadow-sm">
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ProjectModal({ project, onClose }: { project: Project | null, onClose: () => void }) {
+  if (!project) return null;
+
+  return (
+    <AnimatePresence>
+      {project && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-12">
+          {/* Backdrop */}
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+          />
+          
+          {/* Modal Content */}
+          <motion.div 
+            initial={{ opacity: 0, y: 40, scale: 0.95 }} 
+            animate={{ opacity: 1, y: 0, scale: 1 }} 
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-[2rem] shadow-2xl overflow-y-auto"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {/* Close Button */}
+            <button 
+              onClick={onClose}
+              className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full transition-colors z-20"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="p-8 md:p-12">
+              <p className="text-slate-500 text-sm font-medium mb-2">{project.category}</p>
+              <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-10">{project.title}</h2>
+              
+              {/* Description */}
+              <div className="bg-slate-50 rounded-2xl p-6 md:p-8 mb-10">
+                <p className="text-slate-700 leading-relaxed text-[17px] mb-8">
+                  {project.description}
+                </p>
+                
+                {/* Technologies */}
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Technologies</p>
+                  <div className="flex flex-wrap gap-2">
+                    {project.technologies.map(tech => (
+                      <span key={tech} className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-sm font-medium shadow-sm">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Links */}
+              <div className="mb-10">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                  Links
+                </p>
+                <div className="flex flex-col gap-2">
+                  {project.links.map(link => (
+                    <a key={link.label} href={link.url} target="_blank" rel="noreferrer" className="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors group text-slate-800 font-medium border border-slate-100">
+                      {link.label}
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Screenshots */}
+              <div className="w-full flex flex-col gap-6">
+                {project.screenshots.map((img, i) => (
+                  <img key={i} src={img} alt={`${project.title} screenshot ${i+1}`} className="w-full rounded-2xl shadow-sm border border-slate-100 object-cover" />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
