@@ -9,6 +9,7 @@ interface ChatMessage {
   query: string;
   type: 'projects' | 'skills' | 'resume' | 'general' | 'me';
   title: string;
+  ai_text?: string;
 }
 
 export default function App() {
@@ -16,28 +17,77 @@ export default function App() {
   const [viewState, setViewState] = useState<ViewState>('landing');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
 
-  const handleQuery = (query: string, type: ChatMessage['type']) => {
-    if (!query.trim()) return;
+  const handleQuery = async (query: string, typeHint: string = 'general') => {
+    if (viewState === 'landing') {
+      setViewState('chat');
+    }
     
-    const newMessage: ChatMessage = {
-      id: Math.random().toString(36).substring(7),
-      query,
-      type,
-      title: type === 'projects' ? 'My Projects' : 
-             type === 'skills' ? 'Skills & Expertise' : 
-             type === 'resume' ? 'Resume' : 'Response'
+    setIsTyping(true);
+    const userMsg: ChatMessage = { 
+      id: Date.now().toString(), 
+      query, 
+      type: typeHint as any, 
+      title: "Query" 
     };
     
-    setChatHistory([...chatHistory, newMessage]);
+    setChatHistory(prev => [...prev, userMsg]);
     setActiveIndex(chatHistory.length);
-    setViewState('chat');
+    
+    try {
+      // Enforce a minimum 1.5s typing animation for a realistic feel
+      const minDelayPromise = new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const responsePromise = fetch('http://localhost:8000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      
+      const [response] = await Promise.all([responsePromise, minDelayPromise]);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      let responseTitle = "Response";
+      if (data.intent === 'projects') responseTitle = "My Projects";
+      if (data.intent === 'skills') responseTitle = "Skills & Expertise";
+      if (data.intent === 'resume') responseTitle = "Professional Experience";
+      if (data.intent === 'me') responseTitle = "About Me";
+      
+      const aiMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        query: query,
+        type: data.intent || 'general',
+        title: responseTitle,
+        ai_text: data.ai_text
+      };
+      
+      setChatHistory(prev => [...prev, aiMsg]);
+      setActiveIndex(chatHistory.length + 1);
+    } catch (error) {
+      console.error("Failed to fetch AI response", error);
+      const errorMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        query: query,
+        type: 'general',
+        title: "Error",
+        ai_text: "Sorry, my brain is currently offline. Please try again later."
+      };
+      setChatHistory(prev => [...prev, errorMsg]);
+      setActiveIndex(chatHistory.length + 1);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   return (
     <div className={`min-h-screen relative flex flex-col font-sans text-slate-800 transition-colors duration-500 ${viewState === 'chat' ? 'bg-white' : 'bg-[#FDFDFD]'}`}>
       
-      {/* Background Blurs & Text (Only on Landing) */}
       <AnimatePresence>
         {viewState === 'landing' && (
           <motion.div 
@@ -54,7 +104,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Top Navigation */}
       <div className="absolute top-0 w-full p-6 flex justify-between items-center z-20">
         <AnimatePresence>
           {viewState === 'landing' ? (
@@ -71,7 +120,7 @@ export default function App() {
               Resume <ArrowRight className="w-3 h-3 ml-1 opacity-70" />
             </motion.a>
           ) : (
-            <div /> // Placeholder to preserve flex-between spacing
+            <div />
           )}
         </AnimatePresence>
         
@@ -83,7 +132,6 @@ export default function App() {
         </button>
       </div>
 
-      {/* Main Content Area */}
       <main className="flex-1 flex flex-col items-center w-full z-10 relative">
         <AnimatePresence mode="wait">
           {viewState === 'landing' ? (
@@ -94,7 +142,8 @@ export default function App() {
               history={chatHistory} 
               activeIndex={activeIndex} 
               setActiveIndex={setActiveIndex} 
-              onQuery={handleQuery} 
+              onQuery={handleQuery}
+              isTyping={isTyping}
             />
           )}
         </AnimatePresence>
@@ -105,9 +154,6 @@ export default function App() {
   );
 }
 
-// ----------------------------------------------------------------------
-// LANDING VIEW COMPONENT
-// ----------------------------------------------------------------------
 function LandingView({ onQuery }: { onQuery: (q: string, t: ChatMessage['type']) => void }) {
   const [input, setInput] = useState('');
 
@@ -149,7 +195,6 @@ function LandingView({ onQuery }: { onQuery: (q: string, t: ChatMessage['type'])
         </button>
       </div>
 
-      {/* Large Vertical Prompts for Landing */}
       <div className="flex flex-wrap justify-center gap-3">
         <LandingPrompt icon={<User className="w-5 h-5 text-teal-600" />} label="Me" onClick={() => onQuery("Tell me about yourself.", 'me')} />
         <LandingPrompt icon={<Briefcase className="w-5 h-5 text-emerald-600" />} label="Projects" onClick={() => onQuery("Show me your projects.", 'projects')} />
@@ -173,22 +218,9 @@ function LandingPrompt({ icon, label, onClick }: { icon: React.ReactNode, label:
   );
 }
 
-// ----------------------------------------------------------------------
-// CHAT CAROUSEL VIEW COMPONENT
-// ----------------------------------------------------------------------
-function ChatView({ history, activeIndex, setActiveIndex, onQuery }: { history: ChatMessage[], activeIndex: number, setActiveIndex: any, onQuery: any }) {
+function ChatView({ history, activeIndex, setActiveIndex, onQuery, isTyping }: { history: ChatMessage[], activeIndex: number, setActiveIndex: any, onQuery: any, isTyping: boolean }) {
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(true);
   const activeMessage = history[activeIndex];
-
-  // Trigger typing animation whenever the active message changes
-  useEffect(() => {
-    setIsTyping(true);
-    const timer = setTimeout(() => {
-      setIsTyping(false);
-    }, 1500); // 1.5 second typing simulation
-    return () => clearTimeout(timer);
-  }, [activeMessage?.id]);
 
   const handleSubmit = () => {
     onQuery(input, 'general');
@@ -201,7 +233,6 @@ function ChatView({ history, activeIndex, setActiveIndex, onQuery }: { history: 
       animate={{ opacity: 1 }}
       className="w-full flex-1 flex flex-col items-center pt-8 pb-6 px-4 relative"
     >
-      {/* Top Center Avatar */}
       <motion.div 
         initial={{ scale: 0 }} animate={{ scale: 1 }}
         className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-xl mb-6 shadow-[0_8px_32px_rgba(0,0,0,0.08)] border border-white overflow-hidden flex items-center justify-center text-xl shrink-0"
@@ -209,10 +240,8 @@ function ChatView({ history, activeIndex, setActiveIndex, onQuery }: { history: 
         👨🏽‍💻
       </motion.div>
 
-      {/* Main Chat Container constrained to input width */}
-      <div className="w-full max-w-2xl flex-1 flex flex-col relative z-10">
+      <div className="w-full max-w-2xl flex-1 flex flex-col relative z-10 pb-40">
         
-        {/* User Chat Bubble (Left Aligned) */}
         <motion.div 
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           className="w-full flex justify-start mb-6"
@@ -222,7 +251,6 @@ function ChatView({ history, activeIndex, setActiveIndex, onQuery }: { history: 
           </div>
         </motion.div>
 
-        {/* AI Response Area */}
         <AnimatePresence mode="wait">
           {isTyping ? (
             <motion.div 
@@ -245,20 +273,15 @@ function ChatView({ history, activeIndex, setActiveIndex, onQuery }: { history: 
               animate={{ opacity: 1, y: 0 }}
               className="w-full flex flex-col"
             >
-              {/* If type is 'me', render the fixed MeProfile layout */}
               {activeMessage?.type === 'me' && <MeProfile />}
 
-              {/* Text Bubble for General & Me Queries (Right Aligned) */}
-              {(activeMessage?.type === 'general' || activeMessage?.type === 'me') ? (
+              {activeMessage?.ai_text ? (
                 <div className="w-full flex justify-end mb-6">
                   <div className="bg-slate-100 text-slate-800 px-6 py-4 rounded-2xl rounded-br-sm shadow-sm text-[15px] max-w-[85%] border border-slate-200/50 leading-relaxed">
-                    {activeMessage?.type === 'me' 
-                      ? "You can retrieve my contact info above. What specifically would you like to know more about? My journey, my philosophy on design, or perhaps my thoughts on the future of technology?"
-                      : "This is a placeholder for a natural text response from the AI."}
+                    {activeMessage?.ai_text}
                   </div>
                 </div>
               ) : (
-                /* Component Carousel for Specific Intents (Projects, Skills, etc.) */
                 <div className="w-full flex flex-col items-center">
                   <div className="w-full text-left mb-6">
                     <h2 className="text-3xl font-bold text-slate-800 tracking-tight">{activeMessage?.title}</h2>
@@ -268,23 +291,6 @@ function ChatView({ history, activeIndex, setActiveIndex, onQuery }: { history: 
                      <Code2 className="w-8 h-8 mb-2 opacity-50" />
                      <span>[ Dynamic &lt;{activeMessage?.type} /&gt; renders here ]</span>
                   </div>
-
-                  <div className="flex items-center gap-4">
-                    <button 
-                      disabled={activeIndex === 0}
-                      onClick={() => setActiveIndex((i: number) => i - 1)}
-                      className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 disabled:opacity-30 transition-all shadow-sm"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button 
-                      disabled={activeIndex === history.length - 1}
-                      onClick={() => setActiveIndex((i: number) => i + 1)}
-                      className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 disabled:opacity-30 transition-all shadow-sm"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </div>
                 </div>
               )}
             </motion.div>
@@ -292,9 +298,7 @@ function ChatView({ history, activeIndex, setActiveIndex, onQuery }: { history: 
         </AnimatePresence>
       </div>
 
-      {/* Bottom Input Section (Fixed at bottom of screen) */}
-      <div className="w-full max-w-2xl mt-auto pt-6 flex flex-col items-center">
-        {/* Small Horizontal Pills for Chat Navigation */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 flex flex-col items-center z-30 bg-gradient-to-t from-white via-white to-transparent pt-8 pb-2">
         <div className="flex flex-wrap justify-center gap-2 mb-4">
           <ChatPrompt icon={<User className="w-3.5 h-3.5 text-teal-600" />} label="Me" onClick={() => onQuery("Tell me about yourself.", 'me')} />
           <ChatPrompt icon={<Briefcase className="w-3.5 h-3.5 text-emerald-600" />} label="Projects" onClick={() => onQuery("Show me your projects.", 'projects')} />
@@ -303,7 +307,6 @@ function ChatView({ history, activeIndex, setActiveIndex, onQuery }: { history: 
           <ChatPrompt icon={<UserPlus className="w-3.5 h-3.5 text-amber-600" />} label="Contact" onClick={() => onQuery("How can I contact you?", 'general')} />
         </div>
 
-        {/* Search Input */}
         <div className="w-full relative px-2">
           <input 
             type="text" 
@@ -311,11 +314,11 @@ function ChatView({ history, activeIndex, setActiveIndex, onQuery }: { history: 
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             placeholder="Ask me anything..." 
-            className="w-full bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.06)] rounded-full py-3.5 pl-6 pr-14 text-base focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all placeholder:text-slate-500 text-slate-800"
+            className="w-full bg-white shadow-[0_8px_32px_rgba(0,0,0,0.06)] border border-slate-200/60 rounded-full py-4 pl-6 pr-14 text-[15px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all text-slate-800 placeholder-slate-400"
           />
           <button 
             onClick={handleSubmit}
-            className="absolute right-3.5 top-1.5 bottom-1.5 aspect-square bg-blue-500 hover:bg-blue-600 rounded-full flex items-center justify-center text-white transition-colors shadow-sm"
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-all shadow-md shadow-blue-500/20"
           >
             <ArrowRight className="w-4 h-4" />
           </button>
@@ -337,9 +340,6 @@ function ChatPrompt({ icon, label, onClick }: { icon: React.ReactNode, label: st
   );
 }
 
-// ----------------------------------------------------------------------
-// INFO MODAL COMPONENT
-// ----------------------------------------------------------------------
 function InfoModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   return (
     <AnimatePresence>
@@ -405,9 +405,6 @@ function InfoModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }
   );
 }
 
-// ----------------------------------------------------------------------
-// ME PROFILE COMPONENT
-// ----------------------------------------------------------------------
 function MeProfile() {
   return (
     <div className="w-full flex flex-col md:flex-row items-center md:items-start gap-8 mb-8">
