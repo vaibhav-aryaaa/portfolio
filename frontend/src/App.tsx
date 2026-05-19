@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { ArrowRight, Info, Briefcase, Code2, Smile, UserPlus, User, FileText, X, ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Info, Briefcase, Code2, Smile, UserPlus, User, FileText, X, ChevronLeft, ChevronRight, Brain, Server, Layout } from 'lucide-react';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, type MotionValue } from 'framer-motion';
 import { projectsData, type Project } from './data/projects';
+import { skillsData } from './data/skills';
+import { useRef } from 'react';
 
 type ViewState = 'landing' | 'chat';
 
@@ -105,33 +107,56 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <div className="absolute top-0 w-full p-6 flex justify-between items-center z-20">
+      <header className="fixed top-0 left-0 right-0 w-full px-6 pt-6 pb-4 flex justify-between items-start z-40 pointer-events-none">
         <AnimatePresence>
-          {viewState === 'landing' ? (
-            <motion.a 
+          {viewState === 'chat' && (
+            <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              href="#" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-white/30 backdrop-blur-xl border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] px-5 py-2.5 rounded-full text-sm font-medium hover:bg-white/50 transition-all text-slate-700"
-            >
-              <div className="w-6 h-6 bg-slate-800 rounded-full flex items-center justify-center shadow-inner">
-                 <FileText className="w-3 h-3 text-white" />
-              </div>
-              Resume <ArrowRight className="w-3 h-3 ml-1 opacity-70" />
-            </motion.a>
-          ) : (
-            <div />
+              className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-white via-white/95 to-transparent -z-10 pointer-events-none"
+            />
           )}
         </AnimatePresence>
+        <div className="flex-1">
+          <AnimatePresence>
+            {viewState === 'landing' && (
+              <motion.a 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                href="#" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-white/30 backdrop-blur-xl border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] px-5 py-2.5 rounded-full text-sm font-medium hover:bg-white/50 transition-all text-slate-700 pointer-events-auto"
+              >
+                <div className="w-6 h-6 bg-slate-800 rounded-full flex items-center justify-center shadow-inner">
+                   <FileText className="w-3 h-3 text-white" />
+                </div>
+                Resume <ArrowRight className="w-3 h-3 ml-1 opacity-70" />
+              </motion.a>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="flex-1 flex justify-center pointer-events-auto">
+          <AnimatePresence>
+            {viewState === 'chat' && (
+              <motion.div 
+                initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
+                className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-black shadow-lg border border-slate-800 overflow-hidden flex items-center justify-center text-4xl md:text-5xl"
+              >
+                👨🏽‍💻
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
         
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="p-2 rounded-full hover:bg-black/5 transition-colors border border-transparent hover:border-slate-200 backdrop-blur-xl"
-        >
-          <Info className="w-5 h-5 text-slate-600" />
-        </button>
-      </div>
+        <div className="flex-1 flex justify-end pointer-events-auto">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="p-2.5 rounded-full hover:bg-black/5 transition-colors border border-transparent hover:border-slate-200 backdrop-blur-xl"
+          >
+            <Info className="w-5 h-5 text-slate-600" />
+          </button>
+        </div>
+      </header>
 
       <main className="flex-1 flex flex-col items-center w-full z-10 relative">
         <AnimatePresence mode="wait">
@@ -233,22 +258,15 @@ function ChatView({ history, activeIndex, onQuery, isTyping }: { history: ChatMe
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full flex-1 flex flex-col items-center pt-8 pb-6 px-4 relative"
+      className="w-full flex-1 flex flex-col items-center pt-32 pb-6 px-4 relative"
     >
-      <motion.div 
-        initial={{ scale: 0 }} animate={{ scale: 1 }}
-        className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-xl mb-6 shadow-[0_8px_32px_rgba(0,0,0,0.08)] border border-white overflow-hidden flex items-center justify-center text-xl shrink-0"
-      >
-        👨🏽‍💻
-      </motion.div>
-
-      <div className="w-full max-w-2xl flex-1 flex flex-col relative z-10 pb-40">
+      <div className="w-full max-w-4xl flex-1 flex flex-col relative z-10 pb-40">
         
         <motion.div 
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="w-full flex justify-start mb-6"
+          className="w-full flex justify-end mb-6"
         >
-          <div className="bg-blue-600 text-white px-5 py-3 rounded-2xl rounded-bl-sm shadow-sm text-[15px] font-medium max-w-[85%] leading-relaxed">
+          <div className="bg-blue-600 text-white px-5 py-3 rounded-2xl rounded-br-sm shadow-sm text-[15px] font-medium max-w-[85%] leading-relaxed">
             {activeMessage?.query}
           </div>
         </motion.div>
@@ -262,7 +280,7 @@ function ChatView({ history, activeIndex, onQuery, isTyping }: { history: ChatMe
               exit={{ opacity: 0, scale: 0.8 }}
               className="w-full flex justify-start mb-6"
             >
-              <div className="flex items-center gap-1.5 px-5 py-4 bg-slate-100 shadow-sm rounded-2xl rounded-tl-sm w-fit">
+              <div className="flex items-center gap-1.5 px-5 py-4 bg-slate-100 shadow-sm rounded-2xl rounded-bl-sm w-fit">
                 <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                 <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -277,15 +295,16 @@ function ChatView({ history, activeIndex, onQuery, isTyping }: { history: ChatMe
             >
               {activeMessage?.type === 'me' && <MeProfile />}
               {activeMessage?.type === 'projects' && <ProjectsCarousel onSelectProject={setSelectedProject} />}
+              {activeMessage?.type === 'skills' && <SkillsExpertise />}
 
               {activeMessage?.ai_text ? (
-                <div className="w-full flex justify-end mb-6">
-                  <div className="bg-slate-100 text-slate-800 px-6 py-4 rounded-2xl rounded-br-sm shadow-sm text-[15px] max-w-[85%] border border-slate-200/50 leading-relaxed">
+                <div className="w-full flex justify-start mb-6">
+                  <div className="bg-slate-100 text-slate-800 px-6 py-4 rounded-2xl rounded-bl-sm shadow-sm text-[15px] max-w-[85%] border border-slate-200/50 leading-relaxed">
                     {activeMessage?.ai_text}
                   </div>
                 </div>
               ) : (
-                activeMessage?.type !== 'me' && activeMessage?.type !== 'projects' && (
+                activeMessage?.type !== 'me' && activeMessage?.type !== 'projects' && activeMessage?.type !== 'skills' && (
                   <div className="w-full flex flex-col items-center">
                     <div className="w-full text-left mb-6">
                       <h2 className="text-3xl font-bold text-slate-800 tracking-tight">{activeMessage?.title}</h2>
@@ -303,14 +322,16 @@ function ChatView({ history, activeIndex, onQuery, isTyping }: { history: ChatMe
         </AnimatePresence>
       </div>
 
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 flex flex-col items-center z-30 bg-gradient-to-t from-white via-white to-transparent pt-8 pb-2">
-        <div className="flex flex-wrap justify-center gap-2 mb-4">
-          <ChatPrompt icon={<User className="w-3.5 h-3.5 text-teal-600" />} label="Me" onClick={() => onQuery("Tell me about yourself.", 'me')} />
-          <ChatPrompt icon={<Briefcase className="w-3.5 h-3.5 text-emerald-600" />} label="Projects" onClick={() => onQuery("Show me your projects.", 'projects')} />
-          <ChatPrompt icon={<Code2 className="w-3.5 h-3.5 text-indigo-600" />} label="Skills" onClick={() => onQuery("What are your skills?", 'skills')} />
-          <ChatPrompt icon={<Smile className="w-3.5 h-3.5 text-pink-600" />} label="Fun" onClick={() => onQuery("Tell me a fun fact.", 'general')} />
-          <ChatPrompt icon={<UserPlus className="w-3.5 h-3.5 text-amber-600" />} label="Contact" onClick={() => onQuery("How can I contact you?", 'general')} />
-        </div>
+      <div 
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 flex flex-col items-center z-30"
+      >
+        <MagnifyingContainer>
+          <MagnifyingItem><ChatPrompt icon={<User className="w-3.5 h-3.5 text-teal-600" />} label="Me" onClick={() => onQuery("Tell me about yourself.", 'me')} /></MagnifyingItem>
+          <MagnifyingItem><ChatPrompt icon={<Briefcase className="w-3.5 h-3.5 text-emerald-600" />} label="Projects" onClick={() => onQuery("Show me your projects.", 'projects')} /></MagnifyingItem>
+          <MagnifyingItem><ChatPrompt icon={<Code2 className="w-3.5 h-3.5 text-indigo-600" />} label="Skills" onClick={() => onQuery("What are your skills?", 'skills')} /></MagnifyingItem>
+          <MagnifyingItem><ChatPrompt icon={<Smile className="w-3.5 h-3.5 text-pink-600" />} label="Fun" onClick={() => onQuery("Tell me a fun fact.", 'general')} /></MagnifyingItem>
+          <MagnifyingItem><ChatPrompt icon={<UserPlus className="w-3.5 h-3.5 text-amber-600" />} label="Contact" onClick={() => onQuery("How can I contact you?", 'general')} /></MagnifyingItem>
+        </MagnifyingContainer>
 
         <div className="w-full relative px-2">
           <input 
@@ -339,11 +360,53 @@ function ChatPrompt({ icon, label, onClick }: { icon: React.ReactNode, label: st
   return (
     <button 
       onClick={onClick}
-      className="flex items-center gap-1.5 bg-white/40 backdrop-blur-md border border-white/60 shadow-sm px-4 py-2.5 rounded-full hover:bg-white/60 hover:scale-105 transition-all text-[13px] font-semibold text-slate-700"
+      className="flex items-center gap-1.5 bg-white/40 backdrop-blur-md border border-white/60 shadow-sm px-4 py-2.5 rounded-full hover:bg-white/60 transition-colors text-[13px] font-semibold text-slate-700 h-full whitespace-nowrap"
     >
       {icon}
       {label}
     </button>
+  );
+}
+
+function MagnifyingContainer({ children }: { children: React.ReactNode }) {
+  const mouseX = useMotionValue(Infinity);
+  return (
+    <motion.div 
+      onMouseMove={(e) => mouseX.set(e.pageX)}
+      onMouseLeave={() => mouseX.set(Infinity)}
+      className="flex flex-wrap justify-center gap-2 mb-4 h-[38px] items-end pointer-events-auto"
+    >
+      {React.Children.map(children, (child) => 
+        React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<{ mouseX?: MotionValue<number> }>, { mouseX }) : child
+      )}
+    </motion.div>
+  );
+}
+
+function MagnifyingItem({ children, mouseX }: { children: React.ReactNode, mouseX?: MotionValue<number> }) {
+  const ref = useRef<HTMLDivElement>(null);
+  
+  const distance = useTransform(mouseX || new MotionValue(), (val) => {
+    const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
+    return val - bounds.x - bounds.width / 2;
+  });
+
+  const scaleTarget = useTransform(distance, [-150, 0, 150], [1, 1.35, 1]);
+  const scale = useSpring(scaleTarget, { stiffness: 400, damping: 25 });
+  
+  const marginTarget = useTransform(distance, [-150, 0, 150], [0, 10, 0]);
+  const margin = useSpring(marginTarget, { stiffness: 400, damping: 25 });
+  
+  const zIndex = useTransform(distance, [-150, 0, 150], [0, 50, 0]);
+
+  return (
+    <motion.div 
+      ref={ref} 
+      style={{ scale, marginLeft: margin, marginRight: margin, zIndex: zIndex as any }} 
+      className="origin-bottom h-full relative"
+    >
+      {children}
+    </motion.div>
   );
 }
 
@@ -582,5 +645,39 @@ function ProjectModal({ project, onClose }: { project: Project | null, onClose: 
         </div>
       )}
     </AnimatePresence>
+  );
+}
+
+function SkillsExpertise() {
+  return (
+    <div className="w-full flex flex-col items-start mb-12 relative z-10 pt-2">
+      <div className="w-full text-left mb-10">
+        <h2 className="text-5xl md:text-6xl font-bold text-slate-300 tracking-tight">Skills & Expertise</h2>
+      </div>
+      
+      <div className="w-full flex flex-col gap-10">
+        {skillsData.map((category) => (
+          <div key={category.title} className="w-full flex flex-col items-start">
+            <h3 className="text-xl font-bold mb-4 text-slate-900 flex items-center gap-2">
+              <span className="text-slate-500 font-mono tracking-tighter">{'</>'}</span> {category.title}
+            </h3>
+            
+            <div className="flex flex-wrap gap-2.5">
+              {category.skills.map((skill, sIdx) => (
+                <motion.span
+                  key={skill}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: sIdx * 0.05 }}
+                  className="px-4 py-2 bg-[#1A1A1A] hover:bg-black text-white rounded-full text-[13px] font-medium tracking-wide transition-colors cursor-default shadow-sm"
+                >
+                  {skill}
+                </motion.span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
