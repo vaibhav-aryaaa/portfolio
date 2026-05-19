@@ -138,12 +138,15 @@ export default function App() {
         <div className="flex-1 flex justify-center pointer-events-auto">
           <AnimatePresence>
             {viewState === 'chat' && (
-              <motion.div 
+              <motion.button 
+                onClick={() => setViewState('landing')}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
-                className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-black shadow-lg border border-slate-800 overflow-hidden flex items-center justify-center text-4xl md:text-5xl"
+                className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-black shadow-lg border border-slate-800 overflow-hidden flex items-center justify-center text-4xl md:text-5xl cursor-pointer"
               >
                 👨🏽‍💻
-              </motion.div>
+              </motion.button>
             )}
           </AnimatePresence>
         </div>
@@ -296,6 +299,7 @@ function ChatView({ history, activeIndex, onQuery, isTyping }: { history: ChatMe
               {activeMessage?.type === 'me' && <MeProfile />}
               {activeMessage?.type === 'projects' && <ProjectsCarousel onSelectProject={setSelectedProject} />}
               {activeMessage?.type === 'skills' && <SkillsExpertise />}
+              {activeMessage?.type === 'contact' && <ContactCard />}
 
               {activeMessage?.ai_text ? (
                 <div className="w-full flex justify-start mb-6">
@@ -304,7 +308,7 @@ function ChatView({ history, activeIndex, onQuery, isTyping }: { history: ChatMe
                   </div>
                 </div>
               ) : (
-                activeMessage?.type !== 'me' && activeMessage?.type !== 'projects' && activeMessage?.type !== 'skills' && (
+                activeMessage?.type !== 'me' && activeMessage?.type !== 'projects' && activeMessage?.type !== 'skills' && activeMessage?.type !== 'contact' && (
                   <div className="w-full flex flex-col items-center">
                     <div className="w-full text-left mb-6">
                       <h2 className="text-3xl font-bold text-slate-800 tracking-tight">{activeMessage?.title}</h2>
@@ -498,9 +502,9 @@ function MeProfile() {
         </p>
 
         <div className="flex flex-wrap gap-2">
-          <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[13px] font-medium shadow-sm">Machine Learning</span>
-          <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[13px] font-medium shadow-sm">FastAPI</span>
-          <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[13px] font-medium shadow-sm">React</span>
+          <span className="bg-blue-500 text-white px-4 py-1.5 rounded-full text-[13px] font-normal shadow-sm">Machine Learning</span>
+          <span className="bg-blue-500 text-white px-4 py-1.5 rounded-full text-[13px] font-normal shadow-sm">FastAPI</span>
+          <span className="bg-blue-500 text-white px-4 py-1.5 rounded-full text-[13px] font-normal shadow-sm">React</span>
         </div>
       </div>
     </div>
@@ -676,6 +680,49 @@ function SkillsExpertise() {
               ))}
             </div>
           </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ContactCard() {
+  const socials = [
+    { name: 'LinkedIn', url: 'https://linkedin.com/in/vaibhav-arya' },
+    { name: 'Github', url: 'https://github.com/vaibhav-aryaaa' },
+    { name: 'Discord', url: 'https://discord.gg' },
+    { name: 'X', url: 'https://x.com' },
+    { name: 'Youtube', url: 'https://youtube.com' },
+    { name: 'Instagram', url: 'https://instagram.com/vaibhav.aryaa' }
+  ];
+
+  return (
+    <div className="w-full bg-[#f8f9fa] border border-slate-200/60 rounded-3xl p-6 md:p-8 mb-6 shadow-sm flex flex-col items-stretch text-left">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Contacts</h2>
+        <span className="text-sm md:text-base text-slate-500 font-medium">@vaibhav.aryaa</span>
+      </div>
+      
+      <hr className="border-slate-200/80 mb-6" />
+      
+      <a 
+        href="mailto:vaibhavarya338@gmail.com" 
+        className="text-blue-500 hover:text-blue-600 font-normal text-lg md:text-xl mb-6 self-start transition-colors"
+      >
+        vaibhavarya338@gmail.com
+      </a>
+      
+      <div className="flex flex-wrap gap-2.5">
+        {socials.map((social) => (
+          <a
+            key={social.name}
+            href={social.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-sm font-normal tracking-wide transition-all shadow-sm active:scale-95"
+          >
+            {social.name}
+          </a>
         ))}
       </div>
     </div>
