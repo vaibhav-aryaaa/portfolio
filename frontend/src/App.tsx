@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Info, Briefcase, Code2, Smile, UserPlus, User, FileText, X, ChevronLeft, ChevronRight, Brain, Server, Layout } from 'lucide-react';
+import { ArrowRight, Info, Briefcase, Code2, Smile, UserPlus, User, FileText, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, type MotionValue } from 'framer-motion';
 import { projectsData, type Project } from './data/projects';
 import { skillsData } from './data/skills';
@@ -10,9 +10,77 @@ type ViewState = 'landing' | 'chat';
 interface ChatMessage {
   id: string;
   query: string;
-  type: 'projects' | 'skills' | 'resume' | 'general' | 'me';
+  type: 'projects' | 'skills' | 'resume' | 'general' | 'me' | 'contact';
   title: string;
   ai_text?: string;
+}
+
+function MemojiAvatar({ className = "" }: { className?: string }) {
+  const [hasError, setHasError] = useState(false);
+  
+  if (hasError) {
+    return <span className={className}>👨🏽‍💻</span>;
+  }
+  
+  return (
+    <img 
+      src="/assets/memoji/memoji.png" 
+      alt="Memoji" 
+      className={`${className} object-cover`}
+      onError={() => setHasError(true)}
+    />
+  );
+}
+
+function ProfileImage({ className = "" }: { className?: string }) {
+  const [hasError, setHasError] = useState(false);
+  
+  if (hasError) {
+    return (
+      <img 
+        src="https://ui-avatars.com/api/?name=Vaibhav+Arya&size=256&background=f1f5f9&color=334155" 
+        alt="Vaibhav" 
+        className={className} 
+      />
+    );
+  }
+  
+  return (
+    <img 
+      src="/assets/me/profile.jpg" 
+      alt="Vaibhav" 
+      className={className}
+      onError={() => setHasError(true)}
+    />
+  );
+}
+
+interface ProjectImageProps {
+  src: string;
+  fallbackSrc?: string;
+  alt: string;
+  className?: string;
+}
+
+function ProjectImage({ src, fallbackSrc, alt, className = "" }: ProjectImageProps) {
+  const [imgSrc, setImgSrc] = useState(src);
+  
+  React.useEffect(() => {
+    setImgSrc(src);
+  }, [src]);
+  
+  return (
+    <img 
+      src={imgSrc} 
+      alt={alt} 
+      className={className}
+      onError={() => {
+        if (fallbackSrc && imgSrc !== fallbackSrc) {
+          setImgSrc(fallbackSrc);
+        }
+      }}
+    />
+  );
 }
 
 export default function App() {
@@ -145,7 +213,7 @@ export default function App() {
                 initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
                 className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-black shadow-lg border border-slate-800 overflow-hidden flex items-center justify-center text-4xl md:text-5xl cursor-pointer"
               >
-                👨🏽‍💻
+                <MemojiAvatar className="w-full h-full flex items-center justify-center" />
               </motion.button>
             )}
           </AnimatePresence>
@@ -199,7 +267,7 @@ function LandingView({ onQuery }: { onQuery: (q: string, t: ChatMessage['type'])
       className="flex flex-col items-center justify-center w-full max-w-3xl mt-24 md:mt-32 px-4"
     >
       <motion.div className="w-24 h-24 rounded-full bg-white/50 backdrop-blur-xl mb-6 shadow-[0_8px_32px_rgba(0,0,0,0.08)] border-4 border-white overflow-hidden flex items-center justify-center text-5xl">
-        👨🏽‍💻
+        <MemojiAvatar className="w-full h-full flex items-center justify-center" />
       </motion.div>
 
       <div className="text-center mb-8">
@@ -390,7 +458,8 @@ function MagnifyingContainer({ children }: { children: React.ReactNode }) {
 function MagnifyingItem({ children, mouseX }: { children: React.ReactNode, mouseX?: MotionValue<number> }) {
   const ref = useRef<HTMLDivElement>(null);
   
-  const distance = useTransform(mouseX || new MotionValue(), (val) => {
+  const fallbackMouseX = useMotionValue(Infinity);
+  const distance = useTransform(mouseX || fallbackMouseX, (val) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
     return val - bounds.x - bounds.width / 2;
   });
@@ -484,11 +553,7 @@ function MeProfile() {
     <div className="w-full flex flex-col md:flex-row items-center md:items-start gap-8 mb-8">
       {/* Photo */}
       <div className="w-48 h-48 md:w-56 md:h-56 shrink-0 rounded-[2rem] overflow-hidden bg-slate-100 shadow-sm border border-slate-200/60">
-         <img 
-            src="https://ui-avatars.com/api/?name=Vaibhav+Arya&size=256&background=f1f5f9&color=334155" 
-            alt="Vaibhav" 
-            className="w-full h-full object-cover" 
-         />
+         <ProfileImage className="w-full h-full object-cover" />
       </div>
       
       {/* Details */}
@@ -543,7 +608,7 @@ function ProjectsCarousel({ onSelectProject }: { onSelectProject: (p: Project) =
           >
             {/* Background Image with Overlay */}
             <div className="absolute inset-0 z-0">
-              <img src={project.thumbnail} alt={project.title} className="w-full h-full object-cover opacity-50 group-hover:opacity-70 group-hover:scale-110 transition-all duration-700 ease-out" />
+              <ProjectImage src={project.thumbnail} fallbackSrc={project.fallbackThumbnail} alt={project.title} className="w-full h-full object-cover opacity-50 group-hover:opacity-70 group-hover:scale-110 transition-all duration-700 ease-out" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
             </div>
             
@@ -641,7 +706,7 @@ function ProjectModal({ project, onClose }: { project: Project | null, onClose: 
               {/* Screenshots */}
               <div className="w-full flex flex-col gap-6">
                 {project.screenshots.map((img, i) => (
-                  <img key={i} src={img} alt={`${project.title} screenshot ${i+1}`} className="w-full rounded-2xl shadow-sm border border-slate-100 object-cover" />
+                  <ProjectImage key={i} src={img} fallbackSrc={project.fallbackScreenshots?.[i]} alt={`${project.title} screenshot ${i+1}`} className="w-full rounded-2xl shadow-sm border border-slate-100 object-cover" />
                 ))}
               </div>
             </div>
