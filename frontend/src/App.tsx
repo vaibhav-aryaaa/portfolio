@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, type 
 import { projectsData, type Project } from './data/projects';
 import { skillsData } from './data/skills';
 import { useRef } from 'react';
+import FluidCursor from './components/FluidCursor';
 
 type ViewState = 'landing' | 'chat';
 
@@ -15,18 +16,21 @@ interface ChatMessage {
   ai_text?: string;
 }
 
-function MemojiAvatar({ className = "" }: { className?: string }) {
+function MemojiAvatar({ type, className = "" }: { type: 'landing' | 'chat'; className?: string }) {
   const [hasError, setHasError] = useState(false);
   
+  const fallbackEmoji = type === 'landing' ? '🙋🏽‍♂️' : '👨🏽‍💻';
+  const imgSrc = type === 'landing' ? '/assets/memoji/landing.png' : '/assets/memoji/chat.png';
+  
   if (hasError) {
-    return <span className={className}>👨🏽‍💻</span>;
+    return <span className={`${className} flex items-center justify-center`}>{fallbackEmoji}</span>;
   }
   
   return (
     <img 
-      src="/assets/memoji/memoji.png" 
-      alt="Memoji" 
-      className={`${className} object-cover`}
+      src={imgSrc} 
+      alt={`${type} memoji`} 
+      className={`${className} object-contain`}
       onError={() => setHasError(true)}
     />
   );
@@ -89,6 +93,7 @@ export default function App() {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const handleQuery = async (query: string, typeHint: string = 'general') => {
     if (viewState === 'landing') {
@@ -168,7 +173,7 @@ export default function App() {
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-purple-200/40 blur-[120px]" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-200/40 blur-[120px]" />
             <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] rounded-full bg-orange-100/40 blur-[100px]" />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[15vw] font-black text-slate-200/40 tracking-tighter whitespace-nowrap">
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-[15vw] font-black text-slate-200/40 tracking-tighter whitespace-nowrap leading-none select-none">
               VAIBHAV
             </div>
           </motion.div>
@@ -211,9 +216,9 @@ export default function App() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
-                className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-black shadow-lg border border-slate-800 overflow-hidden flex items-center justify-center text-4xl md:text-5xl cursor-pointer"
+                className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center text-4xl md:text-5xl cursor-pointer bg-transparent border-0 outline-none select-none"
               >
-                <MemojiAvatar className="w-full h-full flex items-center justify-center" />
+                <MemojiAvatar type="chat" className="w-full h-full" />
               </motion.button>
             )}
           </AnimatePresence>
@@ -241,12 +246,14 @@ export default function App() {
               setActiveIndex={setActiveIndex} 
               onQuery={handleQuery}
               isTyping={isTyping}
+              onSelectProject={setSelectedProject}
             />
           )}
         </AnimatePresence>
       </main>
       
       <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
     </div>
   );
 }
@@ -259,47 +266,50 @@ function LandingView({ onQuery }: { onQuery: (q: string, t: ChatMessage['type'])
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
-      transition={{ duration: 0.4 }}
-      className="flex flex-col items-center justify-center w-full max-w-3xl mt-24 md:mt-32 px-4"
-    >
-      <motion.div className="w-24 h-24 rounded-full bg-white/50 backdrop-blur-xl mb-6 shadow-[0_8px_32px_rgba(0,0,0,0.08)] border-4 border-white overflow-hidden flex items-center justify-center text-5xl">
-        <MemojiAvatar className="w-full h-full flex items-center justify-center" />
+    <>
+      <FluidCursor />
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col items-center justify-center w-full max-w-3xl mt-24 md:mt-32 px-4"
+      >
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-serif italic text-slate-700 mb-3">Hey, I'm Vaibhav 👋</h2>
+          <h1 className="text-7xl md:text-8xl font-serif font-bold tracking-tight text-slate-900">AI Engineer</h1>
+        </div>
+
+        <motion.div className="w-24 h-24 mb-8 flex items-center justify-center text-5xl">
+          <MemojiAvatar type="landing" className="w-full h-full" />
+        </motion.div>
+
+        <div className="w-full relative max-w-xl mb-10">
+          <input 
+            type="text" 
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+            placeholder="Ask me anything..." 
+            className="w-full bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.06)] rounded-full py-4 pl-6 pr-14 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all placeholder:text-slate-500 text-slate-800"
+          />
+          <button 
+            onClick={handleSubmit}
+            className="absolute right-2 top-2 bottom-2 aspect-square bg-blue-500 hover:bg-blue-600 rounded-full flex items-center justify-center text-white transition-colors shadow-md"
+          >
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-3">
+          <LandingPrompt icon={<User className="w-5 h-5 text-teal-600" />} label="Me" onClick={() => onQuery("Tell me about yourself.", 'me')} />
+          <LandingPrompt icon={<Briefcase className="w-5 h-5 text-emerald-600" />} label="Projects" onClick={() => onQuery("Show me your projects.", 'projects')} />
+          <LandingPrompt icon={<Code2 className="w-5 h-5 text-indigo-600" />} label="Skills" onClick={() => onQuery("What are your skills?", 'skills')} />
+          <LandingPrompt icon={<Smile className="w-5 h-5 text-pink-600" />} label="Fun" onClick={() => onQuery("Tell me a fun fact.", 'general')} />
+          <LandingPrompt icon={<UserPlus className="w-5 h-5 text-amber-600" />} label="Contact" onClick={() => onQuery("How can I contact you?", 'general')} />
+        </div>
       </motion.div>
-
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-serif italic text-slate-700 mb-3">Hey, I'm Vaibhav 👋</h2>
-        <h1 className="text-7xl md:text-8xl font-serif font-bold tracking-tight text-slate-900">AI Engineer</h1>
-      </div>
-
-      <div className="w-full relative max-w-xl mb-10">
-        <input 
-          type="text" 
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-          placeholder="Ask me anything..." 
-          className="w-full bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.06)] rounded-full py-4 pl-6 pr-14 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all placeholder:text-slate-500 text-slate-800"
-        />
-        <button 
-          onClick={handleSubmit}
-          className="absolute right-2 top-2 bottom-2 aspect-square bg-blue-500 hover:bg-blue-600 rounded-full flex items-center justify-center text-white transition-colors shadow-md"
-        >
-          <ArrowRight className="w-5 h-5" />
-        </button>
-      </div>
-
-      <div className="flex flex-wrap justify-center gap-3">
-        <LandingPrompt icon={<User className="w-5 h-5 text-teal-600" />} label="Me" onClick={() => onQuery("Tell me about yourself.", 'me')} />
-        <LandingPrompt icon={<Briefcase className="w-5 h-5 text-emerald-600" />} label="Projects" onClick={() => onQuery("Show me your projects.", 'projects')} />
-        <LandingPrompt icon={<Code2 className="w-5 h-5 text-indigo-600" />} label="Skills" onClick={() => onQuery("What are your skills?", 'skills')} />
-        <LandingPrompt icon={<Smile className="w-5 h-5 text-pink-600" />} label="Fun" onClick={() => onQuery("Tell me a fun fact.", 'general')} />
-        <LandingPrompt icon={<UserPlus className="w-5 h-5 text-amber-600" />} label="Contact" onClick={() => onQuery("How can I contact you?", 'general')} />
-      </div>
-    </motion.div>
+    </>
   );
 }
 
@@ -315,9 +325,21 @@ function LandingPrompt({ icon, label, onClick }: { icon: React.ReactNode, label:
   );
 }
 
-function ChatView({ history, activeIndex, onQuery, isTyping }: { history: ChatMessage[], activeIndex: number, setActiveIndex: any, onQuery: any, isTyping: boolean }) {
+function ChatView({ 
+  history, 
+  activeIndex, 
+  onQuery, 
+  isTyping, 
+  onSelectProject 
+}: { 
+  history: ChatMessage[], 
+  activeIndex: number, 
+  setActiveIndex: any, 
+  onQuery: any, 
+  isTyping: boolean,
+  onSelectProject: (p: Project) => void
+}) {
   const [input, setInput] = useState('');
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const activeMessage = history[activeIndex];
 
   const handleSubmit = () => {
@@ -365,7 +387,7 @@ function ChatView({ history, activeIndex, onQuery, isTyping }: { history: ChatMe
               className="w-full flex flex-col"
             >
               {activeMessage?.type === 'me' && <MeProfile />}
-              {activeMessage?.type === 'projects' && <ProjectsCarousel onSelectProject={setSelectedProject} />}
+              {activeMessage?.type === 'projects' && <ProjectsCarousel onSelectProject={onSelectProject} />}
               {activeMessage?.type === 'skills' && <SkillsExpertise />}
               {activeMessage?.type === 'contact' && <ContactCard />}
 
@@ -422,8 +444,6 @@ function ChatView({ history, activeIndex, onQuery, isTyping }: { history: ChatMe
           </button>
         </div>
       </div>
-
-      <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
     </motion.div>
   );
 }
@@ -640,7 +660,7 @@ function ProjectModal({ project, onClose }: { project: Project | null, onClose: 
   return (
     <AnimatePresence>
       {project && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-12">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 sm:p-6 md:p-8 pt-28 md:pt-32">
           {/* Backdrop */}
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -654,7 +674,7 @@ function ProjectModal({ project, onClose }: { project: Project | null, onClose: 
             animate={{ opacity: 1, y: 0, scale: 1 }} 
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-[2rem] shadow-2xl overflow-y-auto"
+            className="relative w-full max-w-3xl max-h-[calc(100vh-8rem)] md:max-h-[calc(100vh-10rem)] bg-white rounded-[2rem] shadow-2xl overflow-y-auto"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {/* Close Button */}
