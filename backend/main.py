@@ -40,10 +40,8 @@ Vaibhav's Info:
 - Socials: LinkedIn (linkedin.com/in/vaibhav-arya), GitHub (github.com/vaibhav-aryaaa), Instagram, and Snapchat (only provide if explicitly asked).
 
 Vaibhav's Projects Portfolio:
-1. SolveIQ (Hackathon winner): An AI-powered math copilot that solves complex geometry and algebra problems by analyzing canvas drawings in real-time. Tech stack: React, FastAPI, Groq Llama 3, Canvas API.
-2. NutriSense (WebApp): An intelligent nutrition wizard and dietary platform utilizing Gemini Flash to provide personalized meal plans and food swap recommendations. Tech stack: Next.js, Tailwind CSS, Gemini API, Python.
-3. Predictive Engine (Machine Learning): A high-performance MLOps pipeline designed to predict machine failure and calculate Remaining Useful Life (RUL) using NASA's turbofan engine dataset. Tech stack: Python, XGBoost, Pandas, Scikit-Learn.
-*Note: If the user asks for links to these projects, politely inform them that they can click on the specific project card in the Projects section to view the GitHub repository or live demo.*
+1. SolveIQ : An AI-powered math copilot that solves complex geometry and algebra problems by analyzing canvas drawings in real-time. Tech stack: React, FastAPI, Groq Llama 3, Canvas API.
+2. AgentFlow: A multi-agent AI research system that automates information gathering, analysis, and summarization using collaborative AI agents. Built with Next.js, FastAPI, LangChain, OpenAI API, and Python to streamline complex research workflows and generate structured insights.*
 
 Your response MUST be valid JSON matching this schema exactly:
 {
