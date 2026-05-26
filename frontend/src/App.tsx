@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowRight, Info, Briefcase, Code2, Smile, UserPlus, User, FileText, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Info, Briefcase, Code2, UserPlus, User, FileText, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, type MotionValue } from 'framer-motion';
 import { projectsData, type Project } from './data/projects';
 import { skillsData } from './data/skills';
 import { useRef } from 'react';
 import FluidCursor from './components/FluidCursor';
+import ExperienceTimeline from './components/ExperienceTimeline';
 
 type ViewState = 'landing' | 'chat';
 
@@ -304,8 +305,8 @@ function LandingView({ onQuery }: { onQuery: (q: string, t: ChatMessage['type'])
         <div className="flex flex-wrap justify-center gap-3">
           <LandingPrompt icon={<User className="w-5 h-5 text-teal-600" />} label="Me" onClick={() => onQuery("Tell me about yourself.", 'me')} />
           <LandingPrompt icon={<Briefcase className="w-5 h-5 text-emerald-600" />} label="Projects" onClick={() => onQuery("Show me your projects.", 'projects')} />
+          <LandingPrompt icon={<FileText className="w-5 h-5 text-violet-600" />} label="Experience" onClick={() => onQuery("Tell me about your work experience.", 'resume')} />
           <LandingPrompt icon={<Code2 className="w-5 h-5 text-indigo-600" />} label="Skills" onClick={() => onQuery("What are your skills?", 'skills')} />
-          <LandingPrompt icon={<Smile className="w-5 h-5 text-pink-600" />} label="Fun" onClick={() => onQuery("Tell me a fun fact.", 'general')} />
           <LandingPrompt icon={<UserPlus className="w-5 h-5 text-amber-600" />} label="Contact" onClick={() => onQuery("How can I contact you?", 'general')} />
         </div>
       </motion.div>
@@ -388,6 +389,7 @@ function ChatView({
             >
               {activeMessage?.type === 'me' && <MeProfile />}
               {activeMessage?.type === 'projects' && <ProjectsCarousel onSelectProject={onSelectProject} />}
+              {activeMessage?.type === 'resume' && <ExperienceTimeline />}
               {activeMessage?.type === 'skills' && <SkillsExpertise />}
               {activeMessage?.type === 'contact' && <ContactCard />}
 
@@ -398,7 +400,7 @@ function ChatView({
                   </div>
                 </div>
               ) : (
-                activeMessage?.type !== 'me' && activeMessage?.type !== 'projects' && activeMessage?.type !== 'skills' && activeMessage?.type !== 'contact' && (
+                activeMessage?.type !== 'me' && activeMessage?.type !== 'projects' && activeMessage?.type !== 'resume' && activeMessage?.type !== 'skills' && activeMessage?.type !== 'contact' && (
                   <div className="w-full flex flex-col items-center">
                     <div className="w-full text-left mb-6">
                       <h2 className="text-3xl font-bold text-slate-800 tracking-tight">{activeMessage?.title}</h2>
@@ -422,8 +424,8 @@ function ChatView({
         <MagnifyingContainer>
           <MagnifyingItem><ChatPrompt icon={<User className="w-3.5 h-3.5 text-teal-600" />} label="Me" onClick={() => onQuery("Tell me about yourself.", 'me')} /></MagnifyingItem>
           <MagnifyingItem><ChatPrompt icon={<Briefcase className="w-3.5 h-3.5 text-emerald-600" />} label="Projects" onClick={() => onQuery("Show me your projects.", 'projects')} /></MagnifyingItem>
+          <MagnifyingItem><ChatPrompt icon={<FileText className="w-3.5 h-3.5 text-violet-600" />} label="Experience" onClick={() => onQuery("Tell me about your work experience.", 'resume')} /></MagnifyingItem>
           <MagnifyingItem><ChatPrompt icon={<Code2 className="w-3.5 h-3.5 text-indigo-600" />} label="Skills" onClick={() => onQuery("What are your skills?", 'skills')} /></MagnifyingItem>
-          <MagnifyingItem><ChatPrompt icon={<Smile className="w-3.5 h-3.5 text-pink-600" />} label="Fun" onClick={() => onQuery("Tell me a fun fact.", 'general')} /></MagnifyingItem>
           <MagnifyingItem><ChatPrompt icon={<UserPlus className="w-3.5 h-3.5 text-amber-600" />} label="Contact" onClick={() => onQuery("How can I contact you?", 'general')} /></MagnifyingItem>
         </MagnifyingContainer>
 
