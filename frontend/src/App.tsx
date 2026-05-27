@@ -195,7 +195,7 @@ export default function App() {
             {viewState === 'landing' && (
               <motion.a 
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                href="#" 
+                href="https://drive.google.com/file/d/1qDxHL_Qsl6dEscLk_Ke3iONxXFauhmHu/view?usp=sharing" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-white/30 backdrop-blur-xl border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] px-5 py-2.5 rounded-full text-sm font-medium hover:bg-white/50 transition-all text-slate-700 pointer-events-auto"
@@ -775,11 +775,11 @@ function SkillsExpertise() {
 
 function ContactCard() {
   const socials = [
-    { name: 'LinkedIn', url: 'https://linkedin.com/in/vaibhav-arya' },
+    { name: 'LinkedIn', url: 'https://www.linkedin.com/in/vaibhav-arya-737772324' },
     { name: 'Github', url: 'https://github.com/vaibhav-aryaaa' },
-    { name: 'Discord', url: 'https://discord.gg' },
+    { name: 'Discord', url: 'https://discord.com/users/1014795219830583356' },
     { name: 'X', url: 'https://x.com' },
-    { name: 'Youtube', url: 'https://youtube.com' },
+    { name: 'Youtube', url: 'https://www.youtube.com/@vibhavary1399' },
     { name: 'Instagram', url: 'https://instagram.com/vaibhav.aryaa' }
   ];
 

@@ -21,7 +21,7 @@ export const projectsData: Project[] = [
     description: "An AI-powered math copilot that solves complex geometry and algebra problems by analyzing canvas drawings. Built to help students visualize and solve problems interactively in real-time.",
     technologies: ["FastAPI", "Groq Llama 3", "Canvas API","Next.js", "Tailwind CSS", "TypeScript", "MathJax"],
     links: [
-      { label: "SolveIQ App", url: "https://solveiq-two.vercel.app/" },
+      { label: "Live Demo", url: "https://solveiq-two.vercel.app/" },
       { label: "GitHub Repository", url: "https://github.com/vaibhav-aryaaa/maths-notes" }
     ],
     screenshots: [
