@@ -580,7 +580,7 @@ function MeProfile() {
       
       {/* Details */}
       <div className="flex-1 flex flex-col">
-        <h1 className="text-4xl font-bold text-slate-900 mb-2">Vaibhav</h1>
+        <h1 className="text-4xl font-bold text-slate-900 mb-2">Vaibhav Arya</h1>
         <p className="text-slate-500 mb-4 font-medium">AI Engineer <span className="mx-2">•</span> India</p>
         
         <p className="text-slate-700 leading-relaxed mb-6">
@@ -779,7 +779,6 @@ function ContactCard() {
     { name: 'Github', url: 'https://github.com/vaibhav-aryaaa' },
     { name: 'Discord', url: 'https://discord.com/users/1014795219830583356' },
     { name: 'X', url: 'https://x.com' },
-    { name: 'Youtube', url: 'https://www.youtube.com/@vibhavary1399' },
     { name: 'Instagram', url: 'https://instagram.com/vaibhav.aryaa' }
   ];
 
