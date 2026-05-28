@@ -116,10 +116,18 @@ export default function App() {
       // Enforce a minimum 1.5s typing animation for a realistic feel
       const minDelayPromise = new Promise(resolve => setTimeout(resolve, 1500));
       
+      const historyPayload = chatHistory.flatMap(msg => {
+        const msgs = [{ role: 'user', content: msg.query }];
+        if (msg.ai_text) {
+          msgs.push({ role: 'assistant', content: msg.ai_text });
+        }
+        return msgs;
+      });
+
       const responsePromise = fetch('http://localhost:8000/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({ query, history: historyPayload })
       });
       
       const [response] = await Promise.all([responsePromise, minDelayPromise]);
@@ -343,6 +351,37 @@ function ChatView({
   const [input, setInput] = useState('');
   const activeMessage = history[activeIndex];
 
+  const renderChatText = (text: string) => {
+    if (!text) return null;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        let cleanUrl = part;
+        let trailingPunctuation = "";
+        const trailingMatch = part.match(/[.,;:!?]+$/);
+        if (trailingMatch) {
+          cleanUrl = part.slice(0, -trailingMatch[0].length);
+          trailingPunctuation = trailingMatch[0];
+        }
+        return (
+          <span key={index}>
+            <a 
+              href={cleanUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-blue-600 hover:text-blue-700 hover:underline break-all font-semibold"
+            >
+              {cleanUrl}
+            </a>
+            {trailingPunctuation}
+          </span>
+        );
+      }
+      return part;
+    });
+  };
+
   const handleSubmit = () => {
     onQuery(input, 'general');
     setInput('');
@@ -396,7 +435,7 @@ function ChatView({
               {activeMessage?.ai_text ? (
                 <div className="w-full flex justify-start mb-6">
                   <div className="bg-slate-100 text-slate-800 px-6 py-4 rounded-2xl rounded-bl-sm shadow-sm text-[15px] max-w-[85%] border border-slate-200/50 leading-relaxed">
-                    {activeMessage?.ai_text}
+                    {renderChatText(activeMessage.ai_text)}
                   </div>
                 </div>
               ) : (

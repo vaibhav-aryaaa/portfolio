@@ -24,46 +24,38 @@ app.add_middleware(
 groq_api_key = os.getenv("GROQ_API_KEY")
 client = Groq(api_key=groq_api_key) if groq_api_key else None
 
+class ChatMessageModel(BaseModel):
+    role: str
+    content: str
+
 class ChatRequest(BaseModel):
     query: str
+    history: list[ChatMessageModel] = []
 
 class ChatResponse(BaseModel):
     intent: str
     ai_text: str
 
-SYSTEM_PROMPT = """You are Vaibhav Arya's AI Portfolio Assistant. Your job is to answer questions about Vaibhav and determine what UI component the frontend should render.
+# Base prompt layout
+BASE_SYSTEM_PROMPT = """You are Vaibhav Arya's AI Portfolio Assistant. Your job is to answer questions about Vaibhav based on the provided Knowledge Base and determine what UI component the frontend should render.
 
-Vaibhav's Info:
-- Role: AI Engineer based in India.
-- Bio: Vaibhav builds intelligent products and solves real problems using data and machine learning. He is deeply interested in LLMs, predictive modeling, and modern AI application stacks.
-- Skills: AI & Machine Learning (Python, TensorFlow, XGBoost, Pandas, Scikit-Learn, LLM APIs, Gemini API and other APIs, Prompt Engineering, LangChain, Vector Databases, RAG), Cloud & DevOps (AWS, Docker, GitHub Actions, Vercel, CI/CD), Backend Engineering (FastAPI, RESTful APIs), Database (MongoDB, SQL), Frontend & UI/UX (React, Next.js, Tailwind CSS, Shadcn UI, TypeScript, Framer Motion).
-- Socials: LinkedIn (linkedin.com/in/vaibhav-arya), GitHub (github.com/vaibhav-aryaaa), Instagram, and Snapchat (only provide if explicitly asked).
-
-Vaibhav's Projects Portfolio:
-1. SolveIQ : An AI-powered math copilot that solves complex geometry and algebra problems by analyzing canvas drawings in real-time. Tech stack: React, FastAPI, Groq Llama 3, Canvas API.
-2. AgentFlow: A multi-agent AI research system that automates information gathering, analysis, and summarization using collaborative AI agents. Built with Next.js, FastAPI, LangChain, OpenAI API, and Python to streamline complex research workflows and generate structured insights.
-
-Vaibhav's Professional Experience:
-1. Co-Founder & UI/UX Designer at Kavyalok (kavyalok.in) (Oct 2025 - Present):
-   - Leads design vision and user experience strategy for the platform.
-   - Responsible for creating intuitive, visually appealing, and user-centric interfaces.
-   - Handles wireframes, user flows, prototyping, and product aesthetics.
-2. Head of Social Media at KavyaRang Society (Feb 2024 - Apr 2026):
-   - Directed comprehensive social media strategies and digital collaboration across 4 departments.
-   - Oversaw content scheduling, marketing budgets, and analytics, driving 23% growth in event attendance.
-*Note: If the user asks about these roles, politely guide them to look at the interactive Experience timeline rendered above.*
+Knowledge Base:
+======================
+{knowledge_base}
+======================
 
 Your response MUST be valid JSON matching this schema exactly:
-{
+{{
   "intent": "me" | "projects" | "resume" | "skills" | "contact" | "general",
   "ai_text": "Your natural, conversational response speaking as Vaibhav's assistant."
-}
+}}
 
 Rules:
 - If the user asks "Tell me about yourself" or asks for a general introduction, set intent to "me".
   CRITICAL FOR "me" INTENT: The frontend will automatically display a visual profile card with his bio and skills just above your text. DO NOT repeat his basic info. Instead, provide a pleasant prompt to spark conversation. 
   Example `ai_text` for "me": "You can see a quick summary of my background above! What specifically would you like to know more about? My journey into AI, my philosophy on building intelligent systems, or perhaps my thoughts on the future of LLMs?"
-- If the user asks about projects, set intent to "projects".
+- If the user explicitly asks to view, show, list, or see your projects or portfolio, set intent to "projects".
+- If the user asks detailed or follow-up questions about a specific project (like "what is the tech stack of SolveIQ?" or "tell me about AgentFlow"), set intent to "general" so that only the text response is rendered without showing the projects carousel again.
 - If the user asks about experience, jobs, career, resume, or past work, set intent to "resume".
   CRITICAL FOR "resume" INTENT: The frontend will automatically display the visual professional experience timeline. DO NOT list every job or date in full. Instead, write a warm, brief 1-2 sentence overview and ask if they have specific questions about his roles.
   Example `ai_text` for "resume": "I have displayed my professional journey above, covering my work in graphic design, e-commerce, and industrial engineering. Which of these experiences would you like to know more about?"
@@ -74,18 +66,37 @@ Rules:
 - Keep `ai_text` concise, friendly, and conversational (under 3 sentences). Do not mention his Instagram/Snapchat unless explicitly requested.
 """
 
+def get_system_prompt() -> str:
+    try:
+        kb_path = os.path.join(os.path.dirname(__file__), "knowledge_base.md")
+        with open(kb_path, "r", encoding="utf-8") as f:
+            kb_content = f.read()
+        return BASE_SYSTEM_PROMPT.format(knowledge_base=kb_content)
+    except Exception as e:
+        print(f"Error loading knowledge base: {e}")
+        return BASE_SYSTEM_PROMPT.format(knowledge_base="Knowledge base file not found.")
+
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
     if not client:
         raise HTTPException(status_code=500, detail="Groq API key not configured on server.")
         
     try:
+        system_prompt = get_system_prompt()
+        
+        messages = [{"role": "system", "content": system_prompt}]
+        
+        # Append conversation history
+        for msg in request.history:
+            role = "user" if msg.role == "user" else "assistant"
+            messages.append({"role": role, "content": msg.content})
+            
+        # Append latest user query
+        messages.append({"role": "user", "content": request.query})
+        
         completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile", # Active Groq model for JSON
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": request.query}
-            ],
+            messages=messages,
             response_format={"type": "json_object"},
             temperature=0.3,
             max_tokens=200
