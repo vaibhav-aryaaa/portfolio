@@ -1,93 +1,129 @@
-# AI-Agent Interactive Portfolio
+# 🤖 AI-Agent Interactive Portfolio
 
-An advanced, responsive portfolio website that operates as an **interactive AI assistant**, dynamically adapting its interface to answer visitors' questions about my work, experience, and background. 
+An interactive, responsive portfolio website that operates as an **AI-powered personal agent**, dynamically adapting to answer questions about my work, skills, and background. 
 
-Instead of showing a static CV, this architecture leverages a **FastAPI backend** powered by **Llama 3 (via Groq)** to perform real-time intent classification and dynamic component routing. The frontend automatically mounts rich interactive widgets (project carousels, experience timelines, skills grids, and contact cards) in sync with conversational AI replies.
+Instead of a static PDF or traditional layout, this application acts as a conversational dashboard. Powered by a **FastAPI backend** and **Llama 3 (via Groq)**, it reads verified facts in real time and automatically embeds interactive visual UI widgets (project carousels, experience timelines, and skill grids) directly into the conversation stream to show recruiters exactly what they ask for.
 
 ---
 
-## 🛠 System Architecture
+## 📸 Interface Preview
 
-The workflow below demonstrates how user messages compile with local grounding context and trigger reactive visual widgets:
+Here is how the portfolio looks in action:
+
+### 1. Landing View
+![Landing Page Preview](frontend/public/assets/screenshots/landing.png)
+*Interactive search interface with a custom real-time typewriter placeholder loop and cursor-responsive WebGL fluid simulation shader background.*
+
+### 2. Conversational Dashboard View
+![AI Chat Interface Preview](frontend/public/assets/screenshots/chat.png)
+*AI conversation screen displaying grounded facts combined with dynamic interactive component injection (such as projects carousel and experience timeline).*
+
+> [!TIP]
+> **How to add your own screenshots to this README:**
+> 1. Run your frontend and backend servers locally (see **Getting Started** below).
+> 2. Take screenshots of the landing page and the chat interface.
+> 3. Save the image files in your project directory at: `frontend/public/assets/screenshots/landing.png` and `frontend/public/assets/screenshots/chat.png`.
+> 4. Since the paths above are relative to the repository root, they will display automatically on GitHub when you commit and push your changes!
+
+---
+
+## 🛠 System Flow
+
+The diagram below shows how visitor queries route through the grounded Llama 3 engine and trigger visual dashboard widgets dynamically:
 
 ```mermaid
 graph TD
-    A[Visitor] -->|Type query / click interactive skill| B(React Frontend)
-    B -->|Send query & multi-turn history| C[FastAPI Backend /api/chat]
-    C -->|Inject local context| D[knowledge_base.md]
-    C -->|Assemble system prompts| E[Groq API: Llama 3]
-    E -->|JSON Output: intent & ai_text| C
-    C -->|Contraction Punctuation Clean| C2[Regex Post-Processor]
-    C2 -->|Deliver payload| B
-    B -->|Blinking Cursor & Typing Stream| F[StreamingText Renderer]
-    F -->|On-the-fly URL Linkification| H[Chat Conversation UI]
-    B -->|Reactive Widget Mounting| I{Intent Dispatcher}
-    I -->|intent: 'me'| J[Me Profile Card]
-    I -->|intent: 'projects'| K[Projects Carousel]
-    I -->|intent: 'resume'| L[Experience Timeline]
-    I -->|intent: 'skills'| M[Skills Grid]
-    I -->|intent: 'contact'| N[Contact Card]
-    I -->|intent: 'general'| O[Text-Only conversational reply]
+    %% Styling definitions
+    classDef visitor fill:#3b82f6,stroke:#1d4ed8,stroke-width:2px,color:#fff;
+    classDef client fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff;
+    classDef server fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff;
+    classDef data fill:#8b5cf6,stroke:#6d28d9,stroke-width:2px,color:#fff;
+
+    %% Nodes
+    A[Visitor / Recruiter]:::visitor -->|Types Query OR Clicks Navigation/Skill Tag| B(React + TypeScript Frontend):::client
+    
+    %% Local Interceptor
+    B -->|Intercepts Local Command: Dark/Light Mode| B1{Theme Controller}:::client
+    B1 -->|Applies Visual Change Instantly| B
+    
+    %% Server Request
+    B -->|POST /api/chat| C[FastAPI Server]:::server
+    C -->|Reads Verified Biography & Projects| D[(knowledge_base.md)]:::data
+    C -->|Sends Contextual Prompt| E[Groq Llama 3.3 Engine]:::server
+    E -->|Returns JSON with Intent & AI Text| C
+    
+    %% Processing and Dispatching
+    C -->|Replies with Intent & AI Text| B
+    B -->|Renders Streaming Text & Injects Widget| F{Dynamic Component Router}:::client
+    
+    %% Intent Options
+    F -->|intent: me| G[About Me Profile Card]:::client
+    F -->|intent: projects| H[Interactive Projects Carousel]:::client
+    F -->|intent: resume| I[Milestone Experience Timeline]:::client
+    F -->|intent: skills| J[Skills Grid & Actionable Pill Tags]:::client
+    F -->|intent: contact| K[Socials & Direct Email Card]:::client
+    F -->|intent: general| L[Pure Chat Completion]:::client
 ```
 
 ---
 
-## 🚀 Key Engineering Achievements
+## 🌟 Core Features (Recruiter-Focused)
 
-### 1. Dynamic UI Component Routing via Intent Classification
-The backend LLM classifies the user's natural language into structured intents (`me`, `projects`, `resume`, `skills`, `contact`, `general`). The React client captures this intent dynamically and mounts corresponding stateful components (like a timeline or carousel) directly into the chat flow, bridging the gap between natural language interfaces and structured dashboard widgets.
+### 1. Grounded AI Conversational Brain (No Hallucinations)
+- **Verified Fact Base**: Grounded entirely by a local markdown file (`backend/knowledge_base.md`). The AI agent only answers with 100% factual details about my biography, work history, and stack, ensuring **zero hallucinations**.
+- **Contextual Threading**: Features conversational follow-up memory, allowing visitors to ask natural questions like *"What projects did you build?"* followed by *"What is the tech stack of the first one?"*.
 
-### 2. Context Grounding (RAG-Lite)
-The FastAPI server reads and injects a dynamic local Markdown knowledge source (`knowledge_base.md`) directly into the LLM system prompt on every request. This grounds the AI agent with verified data about my projects, stack, and history, ensuring **zero hallucinations** and keeping conversational replies highly accurate and relevant.
+### 2. Semantic Intent-Driven UI Dispatcher
+- The Llama 3 engine parses visitor questions and returns a structured JSON payload categorizing the user's intent.
+- The frontend dynamically routes this intent, embedding full-featured interactive React widgets (such as a project carousel, job timeline, or skills list) directly in-line with the conversational response.
 
-### 3. Client-Side Theme Interception
-The chat input handler intercepts conversational layout requests. If a user types commands like *"turn on dark mode"* or *"switch to light theme"*, the frontend instantly updates the global document styles to support the pure-black background and responds with simulated typing text without wasting API requests or network latency.
+### 3. Interactive Experience Timeline
+- Displays professional journey milestones utilizing custom status capsules, visual sliders, and structured impact metrics.
+- Recruiter-oriented badges clearly separate active ongoing positions (like co-founding Kavyalok) from completed milestones.
 
-### 4. Interactive Skills Ingestion
-All skills rendered on the Skills Grid are interactive buttons. Clicking any skill dynamically builds and submits an automated prompt to the chat engine (e.g. *"Tell me about your experience with FastAPI"*), turning static tech stacks into active conversation starters.
+### 4. Search Suggestion & Actionable Skill Tags
+- **Framer Motion Nav Dock**: A spring-physics magnifying dock at the bottom of the screen provides quick navigation triggers.
+- **Clickable Skill Tags**: Every skill badge behaves as a search shortcut. Clicking it automatically inputs a query to the chat (e.g. *"Tell me about your experience with FastAPI"*), prompting the AI to list the specific projects and history where that skill was applied.
 
-### 5. Custom Typewriter Suggestion Hook
-The search input features a custom [useTypewriterPlaceholder](file:///Users/vaibhavarya/Documents/Culture/my-portfolio/frontend/src/hooks/useTypewriterPlaceholder.ts) hook that runs a non-blocking loop, writing and erasing sample questions with a blinking terminal cursor (`|`). It utilizes React refs to prevent reference changes or component renders from resetting active timers.
-
-### 6. Contraction Normalizer & Grammar Clean
-To avoid syntax errors, LLMs formatted to output JSON values occasionally omit contraction apostrophes. The FastAPI server uses a python post-processor regex pipeline to automatically search, clean, and reconstruct proper punctuation (e.g. `Ive` $\rightarrow$ `I've`, `Im` $\rightarrow$ `I'm`, `dont` $\rightarrow$ `don't`) before returning payloads.
-
-### 7. Uvicorn Reload Optimization
-Running standard file-watching on project directories traverses python virtual environments and node modules, causing reloading speeds to take multiple seconds. By starting the server with `--reload-exclude "venv/*"`, reload times were reduced to under **100ms**.
+### 5. Pitch-Black Glassmorphic Aesthetics
+- **WebGL Fluid Simulation**: A lightweight WebGL shader canvas runs a interactive fluid simulation background that moves with the user's mouse cursor.
+- **Tailwind Pure Black Theme**: Visual aesthetics built on a `#000000` pitch-black dark mode with zinc-toned borders, translucent glassmorphism, and responsive theme transitions.
 
 ---
 
-## 📁 Directory Structure
+## 📂 Project Directory Structure
 
 ```text
 my-portfolio/
 ├── backend/
-│   ├── main.py              # FastAPI server, regex cleanup, and Groq client
-│   ├── knowledge_base.md    # Markdown database (LLM grounding source)
-│   └── requirements.txt     # Python dependencies
+│   ├── main.py              # FastAPI server, intent parser, and regex post-processors
+│   ├── knowledge_base.md    # Markdown database (grounded facts)
+│   └── requirements.txt     # Python backend dependencies
 └── frontend/
-    ├── public/              # Static assets & Memojis
+    ├── public/
+    │   └── assets/
+    │       ├── me/          # Avatar/profile pictures
+    │       ├── memoji/      # Conversational Memoji state assets
+    │       └── screenshots/ # Place screenshots here to embed in README
     ├── src/
-    │   ├── components/      # UI components (FluidCursor, ExperienceTimeline)
-    │   ├── hooks/           # Typewriter hooks & cursor listeners
-    │   ├── data/            # Static data configurations
-    │   ├── App.tsx          # Main layout & chat container
-    │   └── main.tsx         # React entrypoint
-    └── tsconfig.json        # TypeScript configuration
+    │   ├── components/      # UI components (FluidCursor, ExperienceTimeline, etc.)
+    │   ├── hooks/           # Suggestion hooks & WebGL shader bindings
+    │   ├── App.tsx          # Main React layout, state, and chat core
+    │   └── main.tsx         # React compiler entrypoint
 ```
 
 ---
 
-## 🛠 Getting Started
+## 🚀 Getting Started
+
+To run this project locally, follow the steps below:
 
 ### Prerequisites
-* **Node.js**: v18 or higher
-* **Python**: v3.10 or higher
-* **Groq API Key**: Needed for LLM completions
+- **Node.js**: v18.0 or higher
+- **Python**: v3.10 or higher
+- **Groq API Key**: (Get one for free at [console.groq.com](https://console.groq.com/))
 
----
-
-### Running the Backend
+### 1. Set Up the Backend Server
 
 1. Navigate to the backend directory:
    ```bash
@@ -103,7 +139,7 @@ my-portfolio/
    pip install -r requirements.txt
    pip install watchfiles
    ```
-4. Create a `.env` file in the `backend/` directory:
+4. Create a `.env` file in the `backend/` directory and add your API key:
    ```env
    GROQ_API_KEY=your_groq_api_key_here
    ```
@@ -111,22 +147,19 @@ my-portfolio/
    ```bash
    uvicorn main:app --reload --reload-exclude "venv/*"
    ```
+The backend server will spin up at `http://127.0.0.1:8000`.
 
-The backend server will run locally at `http://127.0.0.1:8000`.
+### 2. Set Up the Frontend Dev Server
 
----
-
-### Running the Frontend
-
-1. Navigate to the frontend directory:
+1. Open a new terminal window and navigate to the frontend directory:
    ```bash
    cd frontend
    ```
-2. Install dependencies:
+2. Install the React packages:
    ```bash
    npm install
    ```
-3. Start the Vite development server:
+3. Launch the local development server:
    ```bash
    npm run dev
    ```
