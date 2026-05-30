@@ -143,6 +143,39 @@ export default function App() {
     if (viewState === 'landing') {
       setViewState('chat');
     }
+
+    const normalizedQuery = query.toLowerCase().trim();
+    const isDarkOrder = normalizedQuery.includes('dark mode') || normalizedQuery.includes('enable dark') || normalizedQuery.includes('turn on dark') || normalizedQuery.includes('go dark');
+    const isLightOrder = normalizedQuery.includes('light mode') || normalizedQuery.includes('enable light') || normalizedQuery.includes('turn on light') || normalizedQuery.includes('go light');
+
+    if (isDarkOrder || isLightOrder) {
+      setIsTyping(true);
+      const targetTheme = isDarkOrder ? 'dark' : 'light';
+      setTheme(targetTheme);
+      
+      const userMsg: ChatMessage = { 
+        id: Date.now().toString(), 
+        query, 
+        type: 'general', 
+        title: "Query" 
+      };
+      setChatHistory(prev => [...prev, userMsg]);
+      setActiveIndex(chatHistory.length);
+
+      setTimeout(() => {
+        const aiMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          query: query,
+          type: 'general',
+          title: "Theme Switch",
+          ai_text: `Sure! I have switched the portfolio theme to ${targetTheme} mode.`
+        };
+        setChatHistory(prev => [...prev, aiMsg]);
+        setActiveIndex(chatHistory.length + 1);
+        setIsTyping(false);
+      }, 1000);
+      return;
+    }
     
     setIsTyping(true);
     const userMsg: ChatMessage = { 
@@ -230,7 +263,7 @@ export default function App() {
             <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] transition-colors duration-500 ${theme === 'dark' ? 'bg-blue-900/10' : 'bg-blue-200/40'}`} />
             <div className={`absolute top-[20%] right-[10%] w-[30%] h-[30%] rounded-full blur-[100px] transition-colors duration-500 ${theme === 'dark' ? 'bg-orange-900/5' : 'bg-orange-100/40'}`} />
             <div className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 text-[15vw] font-black tracking-tighter whitespace-nowrap leading-none select-none transition-colors duration-500 ${
-              theme === 'dark' ? 'text-zinc-900/10' : 'text-slate-200/40'
+              theme === 'dark' ? 'text-zinc-800/30' : 'text-slate-200/40'
             }`}>
               VAIBHAV
             </div>
