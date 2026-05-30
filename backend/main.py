@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -64,6 +65,7 @@ Rules:
   CRITICAL FOR "contact" INTENT: You MUST set the `ai_text` to EXACTLY: "You can reach me through the contact info above! Feel free to hit me up anytime, I’d be happy to chat! What's on your mind?"
 - For anything else (like follow-up questions about his journey, philosophy, etc.), set intent to "general".
 - Keep `ai_text` concise, friendly, and conversational (under 3 sentences). Do not mention his Instagram/Snapchat unless explicitly requested.
+- CRITICAL Punctuation Rule: Always write English contractions with proper apostrophes (e.g. use "I've", "I'm", "don't", "it's", "you're", "we've", "they're"). NEVER write them as "Ive", "Im", "dont", "its" (unless possessive), "youre", "weve", "theyre".
 """
 
 def get_system_prompt() -> str:
@@ -105,9 +107,20 @@ async def chat_endpoint(request: ChatRequest):
         response_content = completion.choices[0].message.content
         data = json.loads(response_content)
         
+        ai_text = data.get("ai_text", "I'm not quite sure how to answer that.")
+        
+        # Post-process to restore missing apostrophes in common contractions
+        ai_text = re.sub(r"\b[Ii]ve\b", "I've", ai_text)
+        ai_text = re.sub(r"\b[Ii]m\b", "I'm", ai_text)
+        ai_text = re.sub(r"\b[Dd]ont\b", "don't", ai_text)
+        ai_text = re.sub(r"\b[Cc]ant\b", "can't", ai_text)
+        ai_text = re.sub(r"\b[Yy]oure\b", "you're", ai_text)
+        ai_text = re.sub(r"\b[Ww]eve\b", "we've", ai_text)
+        ai_text = re.sub(r"\b[Tt]heyre\b", "they're", ai_text)
+        
         return ChatResponse(
             intent=data.get("intent", "general"),
-            ai_text=data.get("ai_text", "I'm not quite sure how to answer that.")
+            ai_text=ai_text
         )
         
     except Exception as e:
