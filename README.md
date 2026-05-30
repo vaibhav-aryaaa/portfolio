@@ -1,4 +1,4 @@
-# 🤖 AI-Agent Interactive Portfolio
+# AI Portfolio
 
 An interactive, responsive portfolio website that operates as an **AI-powered personal agent**, dynamically adapting to answer questions about my work, skills, and background. 
 
@@ -6,7 +6,7 @@ Instead of a static PDF or traditional layout, this application acts as a conver
 
 ---
 
-## 📸 Interface Preview
+## Interface Preview
 
 Here is how the portfolio looks in action:
 
@@ -18,16 +18,10 @@ Here is how the portfolio looks in action:
 ![AI Chat Interface Preview](frontend/public/assets/screenshots/chat.png)
 *AI conversation screen displaying grounded facts combined with dynamic interactive component injection (such as projects carousel and experience timeline).*
 
-> [!TIP]
-> **How to add your own screenshots to this README:**
-> 1. Run your frontend and backend servers locally (see **Getting Started** below).
-> 2. Take screenshots of the landing page and the chat interface.
-> 3. Save the image files in your project directory at: `frontend/public/assets/screenshots/landing.png` and `frontend/public/assets/screenshots/chat.png`.
-> 4. Since the paths above are relative to the repository root, they will display automatically on GitHub when you commit and push your changes!
 
 ---
 
-## 🛠 System Flow
+## System Flow
 
 The diagram below shows how visitor queries route through the grounded Llama 3 engine and trigger visual dashboard widgets dynamically:
 
@@ -67,7 +61,7 @@ graph TD
 
 ---
 
-## 🌟 Core Features (Recruiter-Focused)
+## Core Features
 
 ### 1. Grounded AI Conversational Brain (No Hallucinations)
 - **Verified Fact Base**: Grounded entirely by a local markdown file (`backend/knowledge_base.md`). The AI agent only answers with 100% factual details about my biography, work history, and stack, ensuring **zero hallucinations**.
@@ -114,7 +108,7 @@ my-portfolio/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 To run this project locally, follow the steps below:
 
