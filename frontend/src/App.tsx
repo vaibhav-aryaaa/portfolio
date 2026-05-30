@@ -5,6 +5,7 @@ import { projectsData, type Project } from './data/projects';
 import { skillsData } from './data/skills';
 import FluidCursor from './components/FluidCursor';
 import ExperienceTimeline from './components/ExperienceTimeline';
+import { useTypewriterPlaceholder } from './hooks/useTypewriterPlaceholder';
 
 type ViewState = 'landing' | 'chat';
 
@@ -374,6 +375,16 @@ export default function App() {
 
 function LandingView({ onQuery, theme }: { onQuery: (q: string, t: ChatMessage['type']) => void, theme?: string }) {
   const [input, setInput] = useState('');
+  const dynamicPlaceholder = useTypewriterPlaceholder([
+    "Ask me anything...",
+    "Ask me about SolveIQ...",
+    "What is Vaibhav's tech stack?",
+    "Tell me about your experience at Kavyalok...",
+    "Show me your projects...",
+    "How can I contact you?",
+    "What are your skills?",
+    "Turn on dark mode..."
+  ]);
 
   const handleSubmit = () => {
     onQuery(input, 'general');
@@ -404,7 +415,7 @@ function LandingView({ onQuery, theme }: { onQuery: (q: string, t: ChatMessage['
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-            placeholder="Ask me anything..." 
+            placeholder={dynamicPlaceholder} 
             className={`w-full backdrop-blur-2xl border shadow-[0_8px_32px_rgba(0,0,0,0.06)] rounded-full py-4 pl-6 pr-14 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all placeholder:text-slate-500 ${
               theme === 'dark' 
                 ? 'bg-zinc-900/40 border-zinc-800/60 text-zinc-100' 
@@ -465,6 +476,16 @@ function ChatView({
 }) {
   const [input, setInput] = useState('');
   const activeMessage = history[activeIndex];
+  const dynamicPlaceholder = useTypewriterPlaceholder([
+    "Ask me anything...",
+    "Ask me about SolveIQ...",
+    "What is Vaibhav's tech stack?",
+    "Tell me about your experience at Kavyalok...",
+    "Show me your projects...",
+    "How can I contact you?",
+    "What are your skills?",
+    "Turn on dark mode..."
+  ]);
 
   const renderChatText = (text: string) => {
     if (!text) return null;
@@ -602,7 +623,7 @@ function ChatView({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-            placeholder="Ask me anything..." 
+            placeholder={dynamicPlaceholder} 
             className={`w-full shadow-[0_8px_32px_rgba(0,0,0,0.06)] border rounded-full py-4 pl-6 pr-14 text-[15px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all placeholder-zinc-400 ${
               theme === 'dark' 
                 ? 'bg-zinc-900/60 border-zinc-800/80 text-zinc-100' 
@@ -1042,7 +1063,7 @@ function ContactCard({ theme }: { theme?: string }) {
             href={social.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-2.5 bg-blue-650 hover:bg-blue-700 text-white rounded-full text-sm font-normal tracking-wide transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-normal tracking-wide transition-all shadow-sm active:scale-95 cursor-pointer"
           >
             {social.name}
           </a>
