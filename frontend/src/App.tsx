@@ -101,11 +101,11 @@ function StreamingText({ text, speed = 8, renderText }: StreamingTextProps) {
     setDisplayedText('');
     if (!text) return;
 
-    let index = 0;
+    let currentIndex = 0;
     const interval = setInterval(() => {
-      setDisplayedText((prev) => prev + text.charAt(index));
-      index++;
-      if (index >= text.length) {
+      currentIndex++;
+      setDisplayedText(text.slice(0, currentIndex));
+      if (currentIndex >= text.length) {
         clearInterval(interval);
       }
     }, speed);
