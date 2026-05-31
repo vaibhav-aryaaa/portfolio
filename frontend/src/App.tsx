@@ -990,9 +990,9 @@ function ProjectModal({ project, onClose, theme }: { project: Project | null, on
 function SkillsExpertise({ onSelectSkill, theme }: { onSelectSkill?: (skill: string) => void, theme?: string }) {
   return (
     <div className="w-full flex flex-col items-start mb-12 relative z-10 pt-2">
-      <div className="w-full text-left mb-10">
-        <h2 className={`text-5xl md:text-6xl font-bold tracking-tight transition-colors duration-500 ${
-          theme === 'dark' ? 'text-zinc-800' : 'text-slate-300'
+      <div className="w-full text-left mb-6">
+        <h2 className={`text-3xl font-bold tracking-tight transition-colors duration-500 ${
+          theme === 'dark' ? 'text-slate-100' : 'text-slate-800'
         }`}>Skills & Expertise</h2>
       </div>
       
