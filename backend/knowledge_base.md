@@ -1,90 +1,118 @@
-# Vaibhav Arya - AI Engineer
+# Vaibhav Arya - AI Engineer | Grounding Knowledge Base
 
-This is the comprehensive knowledge base for Vaibhav Arya. It contains verified details about his professional background, projects, skills, experience, and general FAQs.
+This is the official, comprehensive grounding database for Vaibhav Arya. It contains verified details about his professional profile, technical stack, key projects (SolveIQ & AgentFlow), experience, engineering philosophy, and detailed FAQs.
 
 ---
 
 ## 1. Professional Profile
-* **Role**: AI Engineer
-* **Location**: India
-* **Bio**: Vaibhav builds intelligent products and solves real-world problems using data and machine learning. He is deeply interested in Large Language Models (LLMs), multi-agent systems, predictive modeling, and modern AI application stacks.
-* **Core Philosophy**: Building practical AI systems that augment human intelligence and automate complex research/math workflows.
+*   **Role**: AI Engineer / Full-Stack Developer
+*   **Location**: India
+*   **Backstory & Philosophy**: Vaibhav builds intelligent products that solve complex mathematical, research, and data problems. He believes AI should act as a low-latency, conversational copilot that augments human intelligence. He focuses on modular backend engineering, highly interactive frontend user experiences, and multi-agent system design.
+*   **Design Approach**: Clean, glassmorphic dark-mode-first user interfaces (Tailwind, Framer Motion, Mantine) integrated with low-latency LLM engines (Groq, Gemini).
 
 ---
 
 ## 2. Technical Skills Stack
 
-### AI & Machine Learning
-* **Languages**: Python
-* **ML Frameworks**: TensorFlow, XGBoost, Pandas, Scikit-Learn
-* **LLM Tech & APIs**: LangChain, LLM APIs, Gemini API and other APIs, Vector Databases, RAG (Retrieval-Augmented Generation), Prompt Engineering
+### Artificial Intelligence & Machine Learning
+*   **Languages**: Python
+*   **Orchestration & Frameworks**: LangGraph, LangChain, LLM APIs, Prompt Engineering, Structured JSON Outputs
+*   **RAG & Vector Tech**: Semantic Search, Vector Embeddings, pgvector, Context Chunking
+*   **ML Libraries**: TensorFlow, XGBoost, Pandas, NumPy, Scikit-Learn
 
-### Cloud & DevOps
-* **Platforms**: AWS, Vercel
-* **Containers & Orchestration**: Docker
-* **Automation**: GitHub Actions, CI/CD pipelines
+### Full-Stack Software Engineering
+*   **Backend**: FastAPI, RESTful APIs, Python-dotenv, Uvicorn
+*   **Frontend**: React (React 19), Next.js, TypeScript, JavaScript
+*   **UI & Animation**: Tailwind CSS, Mantine UI, Framer Motion, HTML5 Canvas API, MathJax (LaTeX rendering)
+*   **Databases**: MongoDB, PostgreSQL, SQL
 
-### Backend Engineering
-* **API Development**: FastAPI, RESTful APIs
-
-### Databases
-* **Systems**: MongoDB, SQL
-
-### Frontend & UI/UX
-* **Core Frameworks**: React, Next.js
-* **Styling & UI**: Tailwind CSS, Shadcn UI, Framer Motion
-* **Languages**: TypeScript
+### DevOps & Cloud Infrastructure
+*   **Containerization**: Docker, Docker Compose
+*   **Cloud Deployment**: Vercel (Serverless Functions), Streamlit Cloud, Render
+*   **DevOps**: Git, GitHub Actions, CI/CD pipelines
 
 ---
 
-## 3. Projects Portfolio
+## 3. Detailed Projects Portfolio
 
-### 1. SolveIQ (AI in Mathematics)
-* **Description**: An AI-powered math copilot that solves complex geometry and algebra problems by analyzing canvas drawings. Built to help students visualize and solve problems interactively in real-time.
-* **Tech Stack**: Next.js, Tailwind CSS, TypeScript, FastAPI, Groq Llama 3, Canvas API, MathJax
-* **Links**:
-  * Live App: `https://solveiq-two.vercel.app/`
-  * GitHub: `https://github.com/vaibhav-aryaaa/maths-notes`
-* **Screenshots**: `/assets/projects/solveiq-ss1.jpg`, `/assets/projects/solveiq-ss2.jpg`, `/assets/projects/solveiq-ss3.jpg`
+### 1. SolveIQ (AI-Powered Math Intelligence Canvas)
+*   **Description**: A next-generation mathematical playground that bridges the gap between digital ink and artificial intelligence. Users draw equations, geometric shapes, and algebraic graphs directly onto an interactive, low-latency drawing canvas and receive step-by-step verified proofs.
+*   **Architecture & Core Technologies**:
+    *   **Frontend**: React 19 (Vite), TypeScript, Mantine UI, and custom HTML5 Canvas API for stroke capturing. Features draggable step-by-step visual proofs.
+    *   **Backend**: FastAPI (Python) server.
+    *   **AI Interpretation**: Integrates **Google Gemini 2.0 Multimodal API** (Flash/Pro) for vision-based canvas stroke interpretation.
+    *   **Chat Copilot**: Uses **Groq (Llama 3.3)** for a session-aware, sub-second latency conversation engine.
+    *   **Math Rendering**: Dynamically parses outputs and renders beautiful LaTeX equations in real time using **MathJax**.
+*   **Key Engineering Challenges Solved**:
+    *   *Agentic State Memory*: Created a state-management system that "remembers" variables (e.g., if a user writes `x = 5` in one area of the canvas, subsequent equations drawn in other areas calculate correctly using that constant).
+    *   *Stroke Serialization*: Optimized base64 image data pipelines, cleaning up background noises using Pillow (PIL) before sending to Gemini, keeping prompt overhead low.
+*   **Links**:
+    *   Live App: `https://solveiq-two.vercel.app/`
+    *   GitHub: `https://github.com/vaibhav-aryaaa/maths-notes`
+*   **Screenshots**: `/assets/projects/solveiq-ss1.jpg`, `/assets/projects/solveiq-ss2.jpg`, `/assets/projects/solveiq-ss3.jpg`
 
-### 2. AgentFlow (AI in Research)
-* **Description**: AgentFlow (Multi-Agent Research System) is an AI-powered research assistant built using a multi-agent architecture, where specialized agents collaborate to gather, analyze, and summarize information efficiently. The project focuses on automating complex research workflows using LLMs, tool calling, and intelligent task delegation to generate structured, high-quality insights.
-* **Tech Stack**: Next.js, Tailwind CSS, TypeScript, Gemini API, Python, LangChain, FastAPI, Vercel, PostgreSQL, Docker, Firebase
-* **Links**:
-  * Live Demo: `https://multi-agent-research-system-69.streamlit.app/`
-  * GitHub: `https://github.com/vaibhav-aryaaa/multi-agent-research-system`
-* **Screenshots**: `/assets/projects/agentflow-ss1.jpg`
+### 2. AgentFlow (Multi-Agent Research Intelligence)
+*   **Description**: A production-grade, multi-agent AI research platform designed to synthesize high-fidelity, academic-quality manuscripts. It orchestrates a specialized team of AI agents that collaborate to search the deep web, extract scholarly data, write reports, and criticize them for accuracy.
+*   **Architecture & Core Technologies**:
+    *   **Orchestration**: Built on **LangGraph** and **LangChain** to enforce structured, loop-free sequential state transitions.
+    *   **LLM Brain**: Groq (Llama 3.3 70B Versatile) for high-reasoning, low-latency agent decisions.
+    *   **Search Engine**: Tavily Search API with **Scholar Mode** enabled (actively prioritizing ArXiv, Nature, ScienceDirect, JSTOR, and ResearchGate while automatically filtering out blog posts and social media noise).
+    *   **Frontend**: Streamlit with custom CSS glassmorphism, dynamic trending research query chips, and real-time state progress cards.
+*   **Specialized Agent Pipeline**:
+    1.  *The Researcher*: Scans academic databases and fetches top citations.
+    2.  *The Deep Reader*: Extracts specific data points, methodologies, and claims from PDF files.
+    3.  *The Synthesizer*: Compiles research into structured academic Markdown chapters.
+    4.  *The Critic*: Conducts peer review, checks for citation accuracy and logical consistency, and routes feedback back to the Synthesizer if revisions are required.
+*   **Key Engineering Challenges Solved**:
+    *   *Deadlock Prevention*: Structured LangGraph conditional edges to prevent infinite loops during the Critique-Synthesizer revision stage.
+    *   *Information Density*: Optimized context token consumption by summarizing documents locally before passing them to the final report compiler.
+*   **Links**:
+    *   Live Demo: `https://multi-agent-research-system-69.streamlit.app/`
+    *   GitHub: `https://github.com/vaibhav-aryaaa/multi-agent-research-system`
+*   **Screenshots**: `/assets/projects/agentflow-ss1.jpg`
 
 ---
 
 ## 4. Professional Experience
 
 ### 1. Co-Founder & UI/UX Designer at Kavyalok (kavyalok.in)
-* **Period**: Oct 2025 - Present (Ongoing)
-* **Responsibilities & Achievements**:
-  * Leading the design vision and user experience strategy for the platform. Responsible for creating intuitive, visually appealing, and user-centric interfaces while ensuring a seamless digital experience across devices.
-  * Worked on wireframes, user flows, prototyping, and overall product aesthetics, collaborating closely on transforming ideas into engaging and accessible user experiences.
+*   **Period**: Oct 2025 - Present (Ongoing)
+*   **Details**: Co-founded a modern digital platform dedicated to poetry, literature, and art.
+*   **UX/UI Execution**:
+    *   Designed the entire product design system, wireframes, user flows, and aesthetic guidelines.
+    *   Translated high-fidelity Figma components into clean, responsive Next.js/Tailwind code, ensuring cross-device readability.
+    *   Analyzed user reading behavior to improve layout structures, leading to a highly engaging community interface.
 
 ### 2. Head of Social Media at KavyaRang Society
-* **Period**: Feb 2024 - Apr 2026 (Completed)
-* **Responsibilities & Achievements**:
-  * Directed comprehensive social media strategies and digital collaboration across 4 departments.
-  * Oversaw content scheduling, digital marketing budgets, and analytics tracking. By optimizing online promotional efforts based on engagement data, successfully drove a 23% growth in event attendance.
+*   **Period**: Feb 2024 - Apr 2026 (Completed)
+*   **Details**: Managed digital outreach, brand strategy, and event promotion for a major cultural and literary society.
+*   **Key Contributions**:
+    *   Coordinated promotional campaigns and content scheduling across 4 core departments.
+    *   Analyzed audience engagement metrics to adjust posting schedules and budgets, driving a **23% growth in event attendance**.
 
 ---
 
 ## 5. Contact & Socials
-* **Email**: `vaibhavarya338@gmail.com`
-* **LinkedIn**: `linkedin.com/in/vaibhav-arya`
-* **GitHub**: `github.com/vaibhav-aryaaa`
-* **Instagram**: `instagram.com/vaibhav.aryaa` (social username: `@vaibhav.aryaa`)
+*   **Email**: `vaibhavarya338@gmail.com`
+*   **LinkedIn**: `linkedin.com/in/vaibhav-arya`
+*   **GitHub**: `github.com/vaibhav-aryaaa`
+*   **Instagram**: `instagram.com/vaibhav.aryaa` (social username: `@vaibhav.aryaa`)
 
 ---
 
-## 6. General FAQs
-* **What is Kavyalok?**
-  * Kavyalok is a digital platform dedicated to poetry, literature, and art. Vaibhav co-founded it and designed its core user experience.
-* **What is KavyaRang Society?**
-  * It is a cultural/literary society. Vaibhav served as the Head of Social Media, managing marketing, content, and events growth.
-* **Is there a resume available?**
-  * Yes, there is a Resume download link available in the top-left of the landing page!
+## 6. Detailed General FAQs (Recruiter-Grade Q&A)
+
+### Q1: What is Vaibhav's engineering background and daily workflow?
+Vaibhav is an AI Engineer who focuses on backend optimization and interactive AI applications. His standard development environment includes Git for version control, Docker for environment isolation, and VS Code. He builds modular FastAPI servers in Python, writes type-safe React/TS frontends, and automates builds via GitHub Actions CI/CD pipelines.
+
+### Q2: Why did Vaibhav transition from traditional full-stack into AI Engineering?
+While building traditional CRUD apps, Vaibhav realized that static layouts were limited in adapting to user needs. He became fascinated by Large Language Models and multi-agent systems, seeing them as the ultimate tools to build self-learning, adaptive user experiences. This inspired him to build projects like `SolveIQ` (which makes canvas math interactive) and `AgentFlow` (which automates heavy academic research).
+
+### Q3: What is the benefit of using LangGraph in projects like AgentFlow?
+LangGraph allows developers to build stateful, multi-actor applications with LLMs. Unlike simple linear chains, LangGraph supports cycles and loops (essential for a Writer/Critic flow), state persistence across steps, and precise human-in-the-loop validation, which makes agent coordination robust and debugging straightforward.
+
+### Q4: How does Vaibhav handle project deployments?
+For AI backends, he deploys using Vercel Serverless Functions (Python runtime) or Koyeb to ensure 24/7 uptime without cold start latencies. Frontend applications are hosted on Vercel or Streamlit Cloud, utilizing automated CI/CD connections linked directly to his GitHub repositories.
+
+### Q5: Is there a resume download link available?
+Yes, a PDF copy of Vaibhav's resume is downloadable via the "Resume" button located at the top-left of the landing page.
