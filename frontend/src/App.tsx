@@ -402,8 +402,8 @@ function LandingView({ onQuery, theme }: { onQuery: (q: string, t: ChatMessage['
         className="flex flex-col items-center justify-center w-full max-w-3xl mt-24 md:mt-32 px-4"
       >
         <div className="text-center mb-6">
-          <h2 className={`text-3xl font-serif italic mb-3 transition-colors duration-500 ${theme === 'dark' ? 'text-zinc-300' : 'text-slate-700'}`}>Hey, I'm Vaibhav 👋</h2>
-          <h1 className={`text-7xl md:text-8xl font-serif font-bold tracking-tight transition-colors duration-500 ${theme === 'dark' ? 'text-zinc-100' : 'text-slate-900'}`}>AI Engineer</h1>
+          <h2 className={`text-2xl sm:text-3xl font-serif italic mb-3 transition-colors duration-500 ${theme === 'dark' ? 'text-zinc-300' : 'text-slate-700'}`}>Hey, I'm Vaibhav 👋</h2>
+          <h1 className={`text-5xl sm:text-7xl md:text-8xl font-serif font-bold tracking-tight transition-colors duration-500 ${theme === 'dark' ? 'text-zinc-100' : 'text-slate-900'}`}>AI Engineer</h1>
         </div>
 
         <motion.div className="w-24 h-24 mb-8 flex items-center justify-center text-5xl">
@@ -665,7 +665,7 @@ function MagnifyingContainer({ children }: { children: React.ReactNode }) {
     <motion.div 
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
-      className="flex flex-wrap justify-center gap-2 mb-4 h-[38px] items-end pointer-events-auto"
+      className="flex overflow-x-auto md:overflow-x-visible flex-nowrap md:flex-wrap justify-start md:justify-center gap-2 mb-4 h-[46px] md:h-[38px] items-center md:items-end pointer-events-auto w-full max-w-full px-4 md:px-0 no-scrollbar"
     >
       {React.Children.map(children, (child) => 
         React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<{ mouseX?: MotionValue<number> }>, { mouseX }) : child
@@ -823,7 +823,7 @@ function ProjectsCarousel({ onSelectProject, theme }: { onSelectProject: (p: Pro
       {/* Carousel Container */}
       <div 
         ref={scrollRef}
-        className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pt-4 pb-6 -mx-4 px-4 sm:mx-0 sm:px-0"
+        className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide no-scrollbar pt-4 pb-6 -mx-4 px-4 sm:mx-0 sm:px-0"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {projectsData.map((project) => (
