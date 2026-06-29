@@ -264,10 +264,10 @@ export default function App() {
             <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] transition-colors duration-500 ${theme === 'dark' ? 'bg-purple-900/10' : 'bg-purple-200/40'}`} />
             <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] transition-colors duration-500 ${theme === 'dark' ? 'bg-blue-900/10' : 'bg-blue-200/40'}`} />
             <div className={`absolute top-[20%] right-[10%] w-[30%] h-[30%] rounded-full blur-[100px] transition-colors duration-500 ${theme === 'dark' ? 'bg-orange-900/5' : 'bg-orange-100/40'}`} />
-            <div className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 text-[15vw] font-black tracking-tighter whitespace-nowrap leading-none select-none transition-colors duration-500 ${
+            <div className={`absolute bottom-16 sm:bottom-20 left-1/2 transform -translate-x-1/2 text-[7vw] sm:text-[5.5vw] md:text-[4.5vw] font-bold tracking-tighter whitespace-nowrap select-none transition-colors duration-500 ${
               theme === 'dark' ? 'text-zinc-800/30' : 'text-slate-200/40'
             }`}>
-              VAIBHAV
+              Think deeply. Build simply.
             </div>
           </motion.div>
         )}
