@@ -11,6 +11,20 @@ export interface Experience {
 
 export const experienceData: Experience[] = [
   {
+    id: "3",
+    period: "2026-Present",
+    company: "1M1B (One Million One Billion)",
+    role: "Applied AI Intern",
+    startMonth: "Jun 2026",
+    endMonth: "Present",
+    ongoing: true,
+    bullets: [
+      "Developing SmartAQI, an AI-powered air quality monitoring and decision support system designed to track dominant environmental pollutants (PM2.5, PM10, CO) across Indian cities.",
+      "Building data pipelines using FastAPI for telemetry ingestion, Pydantic schema validation, and PostgreSQL/Supabase databases for secure logging.",
+      "Implementing Scikit-Learn regression models (LSTM/XGBoost) to perform spatial-temporal anomaly filtering and forecast next-day AQI trends, integrated with real-time Telegram Bot alerts."
+    ]
+  },
+  {
     id: "1",
     period: "2025-Present",
     company: "Kavyalok (kavyalok.in)",

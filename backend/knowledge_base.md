@@ -75,7 +75,15 @@ This is the official, comprehensive grounding database for Vaibhav Arya. It cont
 
 ## 4. Professional Experience
 
-### 1. Co-Founder & UI/UX Designer at Kavyalok (kavyalok.in)
+### 1. Applied AI Intern at 1M1B (One Million One Billion)
+*   **Period**: Jun 2026 - Present (Ongoing)
+*   **Key Project - SmartAQI**:
+    *   Designing and building an AI-powered air quality monitoring system to track and forecast pollutants (PM2.5, PM10, CO) across high-density urban areas.
+    *   Engineering a FastAPI data ingestion pipeline with Pydantic validation and PostgreSQL/Supabase database logging.
+    *   Developing Scikit-Learn ML models (XGBoost/LSTM) for spatial-temporal sensor anomaly detection (quarantining reading outliers) and forecasting next-day AQI trends based on weather variables.
+    *   Integrating automated Telegram Bot alerts and dynamic React dashboard updates via WebSockets for real-time notifications.
+
+### 2. Co-Founder & UI/UX Designer at Kavyalok (kavyalok.in)
 *   **Period**: Oct 2025 - Present (Ongoing)
 *   **Details**: Co-founded a modern digital platform dedicated to poetry, literature, and art.
 *   **UX/UI Execution**:
@@ -83,7 +91,7 @@ This is the official, comprehensive grounding database for Vaibhav Arya. It cont
     *   Translated high-fidelity Figma components into clean, responsive Next.js/Tailwind code, ensuring cross-device readability.
     *   Analyzed user reading behavior to improve layout structures, leading to a highly engaging community interface.
 
-### 2. Head of Social Media at KavyaRang Society
+### 3. Head of Social Media at KavyaRang Society
 *   **Period**: Feb 2024 - Apr 2026 (Completed)
 *   **Details**: Managed digital outreach, brand strategy, and event promotion for a major cultural and literary society.
 *   **Key Contributions**:
