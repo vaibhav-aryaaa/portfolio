@@ -368,7 +368,15 @@ export default function App() {
         </AnimatePresence>
       </main>
       
-      <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} theme={theme} />
+      <InfoModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onContactClick={() => {
+          setIsModalOpen(false);
+          handleQuery("How can I contact you?", 'general');
+        }}
+        theme={theme} 
+      />
       <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} theme={theme} />
     </div>
   );
@@ -702,7 +710,7 @@ function MagnifyingItem({ children, mouseX }: { children: React.ReactNode, mouse
   );
 }
 
-function InfoModal({ isOpen, onClose, theme }: { isOpen: boolean, onClose: () => void, theme?: string }) {
+function InfoModal({ isOpen, onClose, onContactClick, theme }: { isOpen: boolean, onClose: () => void, onContactClick: () => void, theme?: string }) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -763,7 +771,7 @@ function InfoModal({ isOpen, onClose, theme }: { isOpen: boolean, onClose: () =>
                 Start Chatting
               </button>
               <p className="text-sm text-slate-500">
-                If you love it, please share it! Feedback is always welcome. <a href="#" className="text-blue-500 hover:underline">Contact me.</a>
+                If you love it, please share it! Feedback is always welcome. <button onClick={onContactClick} className="text-blue-500 hover:underline cursor-pointer border-0 bg-transparent p-0 font-medium inline">Contact me.</button>
               </p>
             </div>
           </motion.div>
