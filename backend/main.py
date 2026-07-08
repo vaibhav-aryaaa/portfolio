@@ -5,6 +5,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from groq import Groq
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -21,9 +23,13 @@ app.add_middleware(
 )
 
 # Initialize Groq client
-# Make sure GROQ_API_KEY is in your .env file
 groq_api_key = os.getenv("GROQ_API_KEY")
 client = Groq(api_key=groq_api_key) if groq_api_key else None
+
+# Initialize Gemini client
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+gemini_client = genai.Client(api_key=gemini_api_key) if gemini_api_key else None
+gemini_model_name = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
 
 class ChatMessageModel(BaseModel):
     role: str
@@ -36,6 +42,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     intent: str
     ai_text: str
+    provider: str
 
 # Base prompt layout
 BASE_SYSTEM_PROMPT = """You are Vaibhav Arya's AI Portfolio Assistant. Your job is to answer questions about Vaibhav based on the provided Knowledge Base and determine what UI component the frontend should render.
@@ -84,33 +91,72 @@ def get_system_prompt() -> str:
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
-    if not client:
-        raise HTTPException(status_code=500, detail="Groq API key not configured on server.")
+    if not client and not gemini_client:
+        raise HTTPException(status_code=500, detail="Neither Groq nor Gemini API clients are configured on the server.")
         
-    try:
-        system_prompt = get_system_prompt()
-        
-        messages = [{"role": "system", "content": system_prompt}]
-        
-        # Append conversation history
-        for msg in request.history:
-            role = "user" if msg.role == "user" else "assistant"
-            messages.append({"role": role, "content": msg.content})
+    system_prompt = get_system_prompt()
+    response_content = None
+    provider = "groq"
+    
+    # Try Groq first
+    if client:
+        try:
+            messages = [{"role": "system", "content": system_prompt}]
             
-        # Append latest user query
-        messages.append({"role": "user", "content": request.query})
-        
-        completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile", # Active Groq model for JSON
-            messages=messages,
-            response_format={"type": "json_object"},
-            temperature=0.3,
-            max_tokens=200
-        )
-        
-        response_content = completion.choices[0].message.content
+            # Append conversation history
+            for msg in request.history:
+                role = "user" if msg.role == "user" else "assistant"
+                messages.append({"role": role, "content": msg.content})
+                
+            # Append latest user query
+            messages.append({"role": "user", "content": request.query})
+            
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile", # Active Groq model for JSON
+                messages=messages,
+                response_format={"type": "json_object"},
+                temperature=0.3,
+                max_tokens=400
+            )
+            response_content = completion.choices[0].message.content
+        except Exception as e:
+            print(f"[Warning] Groq completion failed: {e}. Attempting fallback to Gemini...")
+            response_content = None
+            
+    # Fallback to Gemini if Groq failed or is not configured
+    if response_content is None:
+        if not gemini_client:
+            raise HTTPException(status_code=500, detail="Groq API failed and Gemini API client is not configured.")
+            
+        try:
+            provider = "gemini"
+            
+            # Format prompt & history for Gemini
+            gemini_prompt = f"{system_prompt}\n\n"
+            for msg in request.history:
+                role_label = "user" if msg.role == "user" else "assistant"
+                gemini_prompt += f"{role_label}: {msg.content}\n"
+            gemini_prompt += f"user: {request.query}\n"
+            gemini_prompt += "Response (in JSON schema):"
+            
+            # Call Gemini using the new SDK
+            completion = gemini_client.models.generate_content(
+                model=gemini_model_name,
+                contents=gemini_prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json"
+                )
+            )
+            response_content = completion.text
+        except Exception as gemini_err:
+            print(f"[Error] Gemini fallback also failed: {gemini_err}")
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Both primary (Groq) and fallback (Gemini) API calls failed. Gemini Error: {gemini_err}"
+            )
+            
+    try:
         data = json.loads(response_content)
-        
         ai_text = data.get("ai_text", "I'm not quite sure how to answer that.")
         
         # Post-process to restore missing apostrophes in common contractions
@@ -124,11 +170,14 @@ async def chat_endpoint(request: ChatRequest):
         
         return ChatResponse(
             intent=data.get("intent", "general"),
-            ai_text=ai_text
+            ai_text=ai_text,
+            provider=provider
         )
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as parse_err:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Failed to parse model JSON. Raw content: {response_content}. Error: {parse_err}"
+        )
 
 @app.get("/")
 async def root():

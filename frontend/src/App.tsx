@@ -15,6 +15,7 @@ interface ChatMessage {
   type: 'projects' | 'skills' | 'resume' | 'general' | 'me' | 'contact';
   title: string;
   ai_text?: string;
+  provider?: string;
 }
 
 function MemojiAvatar({ type, className = "" }: { type: 'landing' | 'chat'; className?: string }) {
@@ -215,6 +216,7 @@ export default function App() {
       }
       
       const data = await response.json();
+      console.log(`[AI Response] Generated via: ${data.provider}`);
       
       let responseTitle = "Response";
       if (data.intent === 'projects') responseTitle = "My Projects";
@@ -227,7 +229,8 @@ export default function App() {
         query: query,
         type: data.intent || 'general',
         title: responseTitle,
-        ai_text: data.ai_text
+        ai_text: data.ai_text,
+        provider: data.provider
       };
       
       setChatHistory(prev => [...prev, aiMsg]);
