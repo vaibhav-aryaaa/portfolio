@@ -191,8 +191,8 @@ export default function App() {
     setActiveIndex(chatHistory.length);
     
     try {
-      // Enforce a minimum 1.5s typing animation for a realistic feel
-      const minDelayPromise = new Promise(resolve => setTimeout(resolve, 1500));
+      // Enforce a snappy 600ms typing animation for responsive feedback
+      const minDelayPromise = new Promise(resolve => setTimeout(resolve, 600));
       
       const historyPayload = chatHistory.flatMap(msg => {
         const msgs = [{ role: 'user', content: msg.query }];

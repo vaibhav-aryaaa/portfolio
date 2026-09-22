@@ -25,7 +25,7 @@ app.add_middleware(
 # Initialize Groq client
 groq_api_key = os.getenv("GROQ_API_KEY")
 client = Groq(api_key=groq_api_key) if groq_api_key else None
-groq_model_name = os.getenv("GROQ_MODEL", "qwen/qwen3.6-27b")
+groq_model_name = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
 
 # Initialize Gemini client
 gemini_api_key = os.getenv("GEMINI_API_KEY")
